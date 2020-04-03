@@ -5,12 +5,10 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.gitective.core.BlobUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,23 +70,20 @@ public class FileAnalyzer {
 
                 RevCommit firstCommit = commits.get(0);
                 RevCommit secondCommit = commits.stream().filter(commit -> commit.getParentCount() > 1).findFirst().orElse(null);
-                DiffEntry markdownPost = compareCommits(firstCommit, secondCommit, ".md");
-                DiffEntry authorsYml = compareCommits(firstCommit, secondCommit, "authors.yml");
+                DiffEntry markdownPost = getPostFromCommitCompare(firstCommit, secondCommit);
+                authors = getAuthors(firstCommit);
 
-                if (authorsYml != null && markdownPost != null) {
+                if (authors != null && markdownPost != null) {
                     String markdownPath = markdownPost.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? markdownPost.getOldPath() : markdownPost.getNewPath();
                     String content = new String(BlobUtils.getRawContent(localRepo, firstCommit.toObjectId(), markdownPath));
                     header = getHeaderFromString(content.split("---")[1]);
-
-                    String authorsPath = authorsYml.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? authorsYml.getOldPath() : authorsYml.getNewPath();
-                    authors = new String(BlobUtils.getRawContent(localRepo, firstCommit.toObjectId(), authorsPath));
                     analyzed = true;
                 } else {
-                    if (authorsYml == null) {
-                        LOGGER.error("Error during reading diffs of authors.yml");
+                    if (authors == null) {
+                        LOGGER.error("Error during reading of authors.yml");
                     }
                     if (markdownPost == null) {
-                        LOGGER.error("Error during reading diffs of markdown file");
+                        LOGGER.error("Error during reading of markdown file");
                     }
                     LOGGER.error("Exiting BlogpostChecker.");
                     System.exit(21);
@@ -108,7 +104,7 @@ public class FileAnalyzer {
         }
     }
 
-    private DiffEntry compareCommits(RevCommit firstCommit, RevCommit secondCommit, String pathEnd) throws IOException {
+    private DiffEntry getPostFromCommitCompare(RevCommit firstCommit, RevCommit secondCommit) throws IOException {
         if (firstCommit != null && secondCommit != null) {
             Git localGit = LocalRepoCreater.getLocalGit();
             ObjectReader reader = localGit.getRepository().newObjectReader();
@@ -127,7 +123,7 @@ public class FileAnalyzer {
             return entries.stream()
                     .filter(entry -> (
                             entry.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? entry.getOldPath() : entry.getNewPath()
-                    ).endsWith(pathEnd))
+                    ).endsWith(".md"))
                     .findFirst().orElse(null);
         }
         return null;
@@ -136,12 +132,12 @@ public class FileAnalyzer {
     private PostHeader getHeaderFromString(String headerString) {
         PostHeader header = new PostHeader();
 
-        header.setLayout(getContent(headerString, ".*layout:\\s*\\[post, post-xml]\\n", "\\[(.*?)]", 1));
-        header.setTitle(getContent(headerString, ".*title:\\s*\".*\"\\n", "\"(.*?)\"", 1));
-        header.setDate(getContent(headerString, ".*date:\\s*\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}\\n", "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}", 0));
-        header.setAuthor(getContent(headerString, ".*author:\\s*\\w+\\n", "(\\w+:\\s*)(\\w+)", 2));
-        header.setCategories(getContent(headerString, ".*categories:\\s*\\[.*]\\n", "\\[(.*?)]", 1));
-        header.setTags(getContent(headerString, ".*tags:\\s*\\[.*]\\n", "\\[(.*?)]", 1));
+        header.setLayout(getContent(headerString, "\\nlayout:\\s*\\[post, post-xml].*\\n", "\\[(.*?)]", 1));
+        header.setTitle(getContent(headerString, "\\ntitle:\\s*\".*\".*\\n", "\"(.*?)\"", 1));
+        header.setDate(getContent(headerString, "\\ndate:\\s*\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}.*\\n", "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}", 0));
+        header.setAuthor(getContent(headerString, "\\nauthor:\\s*\\w+.*\\n", "(\\w+:\\s*)(\\w+)", 2));
+        header.setCategories(getContent(headerString, "\\ncategories:\\s*\\[.*].*\\n", "\\[(.*)]", 1));
+        header.setTags(getContent(headerString, "\\ntags:\\s*\\[.*].*\\n", "\\[(.*?)]", 1));
 
         return header;
     }
@@ -160,7 +156,25 @@ public class FileAnalyzer {
 
     private String getBranchName(Ref ref) {
         String[] branchName = ref.getName().split("/");
-        int length = branchName.length;
-        return branchName[length - 1];
+        return branchName[branchName.length - 1];
+    }
+
+    private String getAuthors(RevCommit commit) {
+        Git localGit = LocalRepoCreater.getLocalGit();
+        Repository localRepo = localGit.getRepository();
+
+        try (TreeWalk treeWalk = TreeWalk.forPath(localGit.getRepository(), "_data/authors.yml", commit.getTree())) {
+            ObjectId blobId = treeWalk.getObjectId(0);
+            try (ObjectReader objectReader = localRepo.newObjectReader()) {
+                ObjectLoader objectLoader = objectReader.open(blobId);
+                byte[] bytes = objectLoader.getBytes();
+                return new String(bytes, StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            LOGGER.error("Error on getting authors.yml content from git.");
+            LOGGER.error("Exiting BlogpostChecker.");
+            System.exit(25);
+        }
+        return null;
     }
 }
