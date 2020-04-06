@@ -34,7 +34,6 @@ public class InitializationService {
 	@PostConstruct
 	public void init() {
 		try {
-			// TODO check if error is there when exit code != 0
 			// Step 1: Check config
 			configService.checkConfiguration();
 
