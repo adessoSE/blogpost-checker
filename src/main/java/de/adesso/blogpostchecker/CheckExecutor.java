@@ -9,15 +9,22 @@ public class CheckExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CheckExecutor.class);
 
-    public void executeChecks(PostMetadata postMetadata, String authors) {
-        checkCategoryNotEmpty(postMetadata);
-        checkCategoryOnlyOneEntry(postMetadata);
-        checkTagsNotEmpty(postMetadata);
-        checkAuthorNotEmpty(postMetadata);
-        checkAuthorInYml(postMetadata, authors);
-        checkTitleNotEmpty(postMetadata);
-        checkLayoutCorrect(postMetadata);
-        checkDateMatchesFormat(postMetadata);
+    public void executeChecks(PostHeader postHeader, Author author) {
+        checkPostCategoryOnlyOneEntry(postHeader);
+        checkPostTagsNotEmpty(postHeader);
+        checkPostAuthorNotEmpty(postHeader);
+        checkPostTitleNotEmpty(postHeader);
+        checkPostLayoutCorrect(postHeader);
+        checkPostDateMatchesFormat(postHeader);
+
+        checkAuthorFirstNameNotEmpty(author);
+        checkAuthorLastNameNotEmpty(author);
+        checkAuthorGithubUsernameNotEmpty(author);
+        checkAuthorEmailNotEmpty(author);
+        checkAuthorEmailCorrectFormat(author);
+        checkAuthorBioNotEmpty(author);
+        checkAuthorAvatarUrlNotEmpty(author);
+        checkAuthorGithubNotEmpty(author);
     }
 
     private void checkCategoryNotEmpty(PostMetadata metadata) {
@@ -87,4 +94,79 @@ public class CheckExecutor {
     private boolean checkAttribute(String attribute) {
         return attribute != null && !attribute.equals("");
     }
+
+    private void checkAuthorLastNameNotEmpty(Author author) {
+        if (checkAttribute(author.getLastName())) {
+            LOGGER.info("Author last name checked");
+        } else {
+            LOGGER.error("Author last name is empty.");
+            LOGGER.error("Exiting BlogpostChecker.");
+            System.exit(311);
+        }
+    }
+
+    private void checkAuthorGithubUsernameNotEmpty(Author author) {
+        if (checkAttribute(author.getGithubUsername())) {
+            LOGGER.info("Author github username checked");
+        } else {
+            LOGGER.error("Author github username is empty.");
+            LOGGER.error("Exiting BlogpostChecker.");
+            System.exit(312);
+        }
+    }
+
+    private void checkAuthorEmailNotEmpty(Author author) {
+        if (checkAttribute(author.getEmail())) {
+            LOGGER.info("Author email checked");
+        } else {
+            LOGGER.error("Author email is empty.");
+            LOGGER.error("Exiting BlogpostChecker.");
+            System.exit(313);
+        }
+    }
+
+    private void checkAuthorEmailCorrectFormat(Author author) {
+        if (author.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
+            LOGGER.info("Author email matches pattern checked");
+        } else {
+            LOGGER.error("Author email does not match pattern.");
+            LOGGER.error("Exiting BlogpostChecker.");
+            System.exit(314);
+        }
+    }
+
+    private void checkAuthorBioNotEmpty(Author author) {
+        if (checkAttribute(author.getBio())) {
+            LOGGER.info("Author bio checked");
+        } else {
+            LOGGER.error("Author bio is empty.");
+            LOGGER.error("Exiting BlogpostChecker.");
+            System.exit(315);
+        }
+    }
+
+    private void checkAuthorAvatarUrlNotEmpty(Author author) {
+        if (checkAttribute(author.getAvatarUrl())) {
+            LOGGER.info("Author avatar url checked");
+        } else {
+            LOGGER.error("Author avatar url is empty.");
+            LOGGER.error("Exiting BlogpostChecker.");
+            System.exit(316);
+        }
+    }
+
+    private void checkAuthorGithubNotEmpty(Author author) {
+        if (checkAttribute(author.getGithub())) {
+            LOGGER.info("Author github checked");
+        } else {
+            LOGGER.error("Author github is empty.");
+            LOGGER.error("Exiting BlogpostChecker.");
+            System.exit(317);
+        }
+    }
+
+    private boolean checkAttribute(String attribute) {
+        return attribute != null && !attribute.equals("");
+    }
+
 }

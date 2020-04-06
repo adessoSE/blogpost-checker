@@ -40,10 +40,10 @@ public class InitializationService {
 			// Step 2: Clone repo
 			repoCloner.cloneRemoteRepo();
 			PostMetadata header = fileAnalyzer.getMetadata();
-			String authors = fileAnalyzer.getAuthors();
+			Author author = fileAnalyzer.getAuthors();
 
 			// Step 3: Execute checks
-			checkExecutor.executeChecks(header, authors);
+			checkExecutor.executeChecks(header, author);
 		} catch(Exception e) {
 			LOGGER.error("UNDEFINED EXCEPTION", e);
 			LOGGER.error("Exiting BlogpostChecker.");
