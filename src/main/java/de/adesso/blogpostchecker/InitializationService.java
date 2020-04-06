@@ -27,9 +27,8 @@ public class InitializationService {
 
 	/**
 	 * Init the BlogpostChecker process.
-	 * Step 0: Check config
-	 * Step 1: Clone repo
- 	 * Step 2: Transform repo using jekyll
+	 * Step 1: Check config
+	 * Step 2: Clone repo
 	 * Step 3: Execute checks
 	 */
 	@PostConstruct
