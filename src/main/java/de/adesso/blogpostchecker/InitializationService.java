@@ -35,13 +35,12 @@ public class InitializationService {
 	@PostConstruct
 	public void init() {
 		try {
-			// TODO check if error is there when exit code != 0
 			// Step 1: Check config
 			configService.checkConfiguration();
 
 			// Step 2: Clone repo
 			repoCloner.cloneRemoteRepo();
-			PostHeader header = fileAnalyzer.getHeader();
+			PostMetaData header = fileAnalyzer.getMetaData();
 			String authors = fileAnalyzer.getAuthors();
 
 			// Step 3: Execute checks

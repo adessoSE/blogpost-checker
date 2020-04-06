@@ -38,7 +38,9 @@ public class ConfigService {
 
     private void checkRemoteRepoUrl() {
         if (REPOSITORY_REMOTE_URL == null) {
-            logAndExitVariableNotFound("REPOSITORY_REMOTE_URL", "Please provide something in the format: https://github.com/myAccount/devblog.", 10);
+            logAndExitVariableNotFound("REPOSITORY_REMOTE_URL",
+                    "Please provide a repository url in the format of: https://github.com/<name-of-my-account>/devblog.",
+                    10);
         } else {
             LOGGER.info("Environment variable provided: REPOSITORY_REMOTE_URL");
         }
@@ -53,8 +55,6 @@ public class ConfigService {
     }
 
     private void logAndExitVariableNotFound(String variable, String description, int exitCode) {
-        LOGGER.error("Environment variable not provided: " + variable + ". " + description);
-        LOGGER.error("Exiting BlogpostChecker.");
-        System.exit(exitCode);
+        ExitBlogpostChecker.exit(LOGGER, "Environment variable not provided: " + variable + ". " + description, exitCode);
     }
 }

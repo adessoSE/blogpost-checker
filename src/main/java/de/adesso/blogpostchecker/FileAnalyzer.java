@@ -32,19 +32,20 @@ public class FileAnalyzer {
     private ConfigService configService;
 
     private boolean analyzed;
-    private PostHeader header;
+    private PostMetaData metaData;
     private String authors;
+    private Git localGitInstance;
 
     @Autowired
     public FileAnalyzer(ConfigService configService) {
         this.configService = configService;
     }
 
-    public PostHeader getHeader() {
+    public PostMetaData getMetaData() {
         if (!analyzed) {
             analyzeBranch();
         }
-        return header;
+        return metaData;
     }
 
     public String getAuthors() {
@@ -56,125 +57,130 @@ public class FileAnalyzer {
 
     private void analyzeBranch() {
         try {
-            Git localGit = LocalRepoCreater.getLocalGit();
-            Repository localRepo = localGit.getRepository();
-
-            Ref localBranch = localGit.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()
-                    .stream().filter(ref -> getBranchName(ref).equals(configService.getREPOSITORY_BRANCH_NAME()))
-                    .findFirst().orElse(null);
+            localGitInstance = LocalRepoCreater.getLocalGit();
+            Ref localBranch = getBranchByName();
 
             if (localBranch != null) {
-                List<RevCommit> commits = StreamSupport
-                        .stream(localGit.log().add(localRepo.resolve(localBranch.getName())).call().spliterator(), false)
-                        .collect(Collectors.toList());
+                List<RevCommit> commits = getCommitsInBranch(localBranch);
 
-                RevCommit firstCommit = commits.get(0);
-                RevCommit secondCommit = commits.stream().filter(commit -> commit.getParentCount() > 1).findFirst().orElse(null);
-                DiffEntry markdownPost = getPostFromCommitCompare(firstCommit, secondCommit);
-                authors = getAuthors(firstCommit);
-
-                if (authors != null && markdownPost != null) {
-                    String markdownPath = markdownPost.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? markdownPost.getOldPath() : markdownPost.getNewPath();
-                    String content = new String(BlobUtils.getRawContent(localRepo, firstCommit.toObjectId(), markdownPath));
-                    header = getHeaderFromString(content.split("---")[1]);
-                    analyzed = true;
-                } else {
-                    if (authors == null) {
-                        LOGGER.error("Error during reading of authors.yml");
-                    }
-                    if (markdownPost == null) {
-                        LOGGER.error("Error during reading of markdown file");
-                    }
-                    LOGGER.error("Exiting BlogpostChecker.");
-                    System.exit(21);
-                }
+                RevCommit currentHead = commits.get(0);
+                // a commit that was definitely there before the branch of this pull request was created.
+                // this commit is used to have a base to compare the currentHead against.
+                RevCommit baseCommit = commits.stream().filter(commit -> commit.getParentCount() > 1).findFirst().orElse(null);
+                DiffEntry markdownPost = extractNewPostFromCommitDifference(currentHead, baseCommit);
+                extractDataFromFiles(currentHead, markdownPost);
             } else {
-                LOGGER.error("Error on getting branch from git.");
-                LOGGER.error("Exiting BlogpostChecker.");
-                System.exit(22);
+                ExitBlogpostChecker.exit(LOGGER, "Error on getting branch from git.", 23);
             }
         } catch (GitAPIException e) {
-            LOGGER.error("Error on accessing git api.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(23);
+            ExitBlogpostChecker.exit(LOGGER, "Error on accessing git api.", 24);
         } catch (IOException e) {
-            LOGGER.error("Error on getting file content.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(24);
+            ExitBlogpostChecker.exit(LOGGER, "Error on getting file content.", 25);
         }
     }
 
-    private DiffEntry getPostFromCommitCompare(RevCommit firstCommit, RevCommit secondCommit) throws IOException {
-        if (firstCommit != null && secondCommit != null) {
-            Git localGit = LocalRepoCreater.getLocalGit();
-            ObjectReader reader = localGit.getRepository().newObjectReader();
+    private List<RevCommit> getCommitsInBranch(Ref branch) throws IOException, GitAPIException {
+        return StreamSupport
+                .stream(localGitInstance.log().add(localGitInstance.getRepository().resolve(branch.getName())).call().spliterator(), false)
+                .collect(Collectors.toList());
+    }
 
-            CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-            ObjectId newTree = firstCommit.getTree();
-            newTreeIter.reset(reader, newTree);
+    private void extractDataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
+        authors = getAuthors(latestCommit);
 
-            CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
-            ObjectId oldTree = secondCommit.getTree();
-            oldTreeIter.reset(reader, oldTree);
+        if (authors == null) {
+            ExitBlogpostChecker.exit(LOGGER, "Error during reading of authors.yml.", 21);
+        }
 
-            DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
-            df.setRepository(localGit.getRepository());
-            List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
-            return entries.stream()
-                    .filter(entry -> (
-                            entry.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? entry.getOldPath() : entry.getNewPath()
-                    ).endsWith(".md"))
+        if (blogPost != null) {
+            String blogPostPath = blogPost.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? blogPost.getOldPath() : blogPost.getNewPath();
+            String blogPostContent = new String(BlobUtils.getRawContent(localGitInstance.getRepository(), latestCommit.toObjectId(), blogPostPath));
+            metaData = extractMetaDataFromString(blogPostContent.split("---")[1]);
+            analyzed = true;
+        } else {
+            ExitBlogpostChecker.exit(LOGGER, "Error during reading of markdown file.", 22);
+        }
+    }
+
+    private Ref getBranchByName() throws GitAPIException {
+        return localGitInstance.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()
+                .stream().filter(ref -> extractBranchName(ref).equals(configService.getREPOSITORY_BRANCH_NAME()))
+                .findFirst().orElse(null);
+    }
+
+    private DiffEntry extractNewPostFromCommitDifference(RevCommit firstCommit, RevCommit secondCommit) throws IOException {
+        if (commitsFound(firstCommit, secondCommit)) {
+            ObjectReader reader = localGitInstance.getRepository().newObjectReader();
+
+            return getDiffsFromCommits(getTreeParser(secondCommit, reader), getTreeParser(firstCommit, reader)).stream()
+                    .filter(entry -> entry.getChangeType().equals(DiffEntry.ChangeType.ADD) && entry.getNewPath().endsWith(".md"))
                     .findFirst().orElse(null);
         }
         return null;
     }
 
-    private PostHeader getHeaderFromString(String headerString) {
-        PostHeader header = new PostHeader();
-
-        header.setLayout(getContent(headerString, "\\nlayout:\\s*\\[post, post-xml].*\\n", "\\[(.*?)]", 1));
-        header.setTitle(getContent(headerString, "\\ntitle:\\s*\".*\".*\\n", "\"(.*?)\"", 1));
-        header.setDate(getContent(headerString, "\\ndate:\\s*\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}.*\\n", "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}", 0));
-        header.setAuthor(getContent(headerString, "\\nauthor:\\s*\\w+.*\\n", "(\\w+:\\s*)(\\w+)", 2));
-        header.setCategories(getContent(headerString, "\\ncategories:\\s*\\[.*].*\\n", "\\[(.*)]", 1));
-        header.setTags(getContent(headerString, "\\ntags:\\s*\\[.*].*\\n", "\\[(.*?)]", 1));
-
-        return header;
+    private CanonicalTreeParser getTreeParser(RevCommit commit, ObjectReader reader) throws IOException {
+        CanonicalTreeParser newTreeParser = new CanonicalTreeParser();
+        ObjectId tree = commit.getTree();
+        newTreeParser.reset(reader, tree);
+        return newTreeParser;
     }
 
-    private String getContent(String headerString, String pattern1, String pattern2, int groupIndex) {
+
+    private List<DiffEntry> getDiffsFromCommits(CanonicalTreeParser oldTreeParser, CanonicalTreeParser newTreeParser) throws IOException {
+        DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
+        df.setRepository(localGitInstance.getRepository());
+        return df.scan(oldTreeParser, newTreeParser);
+    }
+
+    private PostMetaData extractMetaDataFromString(String metaDataString) {
+        PostMetaData metaData = new PostMetaData();
+
+        metaData.setLayout(extractAttributeValueFromMetaData(metaDataString, "\\nlayout:\\s*\\[post, post-xml].*\\n", "\\[(.*?)]", 1));
+        metaData.setTitle(extractAttributeValueFromMetaData(metaDataString, "\\ntitle:\\s*\".*\".*\\n", "\"(.*?)\"", 1));
+        metaData.setDate(extractAttributeValueFromMetaData(metaDataString, "\\ndate:\\s*\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}.*\\n", "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}", 0));
+        metaData.setAuthor(extractAttributeValueFromMetaData(metaDataString, "\\nauthor:\\s*\\w+.*\\n", "(\\w+:\\s*)(\\w+)", 2));
+        metaData.setCategories(extractAttributeValueFromMetaData(metaDataString, "\\ncategories:\\s*\\[.*].*\\n", "\\[(.*)]", 1));
+        metaData.setTags(extractAttributeValueFromMetaData(metaDataString, "\\ntags:\\s*\\[.*].*\\n", "\\[(.*?)]", 1));
+
+        return metaData;
+    }
+
+    private String extractAttributeValueFromMetaData(String metaDataString, String pattern1, String pattern2, int groupIndex) {
         Pattern pattern = Pattern.compile(pattern1);
-        Matcher matcher = pattern.matcher(headerString);
+        Matcher matcher = pattern.matcher(metaDataString);
         if (matcher.find()) {
-            String titleLine = matcher.group();
+            String extractedLine = matcher.group();
             Pattern stringPattern = Pattern.compile(pattern2);
-            Matcher stringMatcher = stringPattern.matcher(titleLine);
+            Matcher stringMatcher = stringPattern.matcher(extractedLine);
             return stringMatcher.find() ? stringMatcher.group(groupIndex) : null;
         }
         return null;
     }
 
-    private String getBranchName(Ref ref) {
+    private String extractBranchName(Ref ref) {
         String[] branchName = ref.getName().split("/");
         return branchName[branchName.length - 1];
     }
 
     private String getAuthors(RevCommit commit) {
-        Git localGit = LocalRepoCreater.getLocalGit();
-        Repository localRepo = localGit.getRepository();
+        Repository localRepo = localGitInstance.getRepository();
 
-        try (TreeWalk treeWalk = TreeWalk.forPath(localGit.getRepository(), "_data/authors.yml", commit.getTree())) {
+        try (TreeWalk treeWalk = TreeWalk.forPath(localGitInstance.getRepository(), "_data/authors.yml", commit.getTree());
+             ObjectReader objectReader = localRepo.newObjectReader()) {
+
             ObjectId blobId = treeWalk.getObjectId(0);
-            try (ObjectReader objectReader = localRepo.newObjectReader()) {
-                ObjectLoader objectLoader = objectReader.open(blobId);
-                byte[] bytes = objectLoader.getBytes();
-                return new String(bytes, StandardCharsets.UTF_8);
-            }
+            ObjectLoader objectLoader = objectReader.open(blobId);
+            byte[] bytes = objectLoader.getBytes();
+            return new String(bytes, StandardCharsets.UTF_8);
+
         } catch (IOException e) {
-            LOGGER.error("Error on getting authors.yml content from git.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(25);
+            ExitBlogpostChecker.exit(LOGGER, "Error on getting authors.yml content from git.", 26);
         }
         return null;
+    }
+
+    private boolean commitsFound(RevCommit commit1, RevCommit commit2) {
+        return commit1 != null && commit2 != null;
     }
 }
