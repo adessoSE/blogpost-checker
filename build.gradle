@@ -28,4 +28,5 @@ dependencies {
 	compile('org.eclipse.jgit:org.eclipse.jgit:5.4.0.201906121030-r')
 	compile "io.fabric8:gitective-core:0.9.10"
 	compile 'org.yaml:snakeyaml:1.21'
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
