@@ -98,7 +98,9 @@ public class FileAnalyzer {
             metaData = extractMetaDataFromString(blogPostContent.split("---")[1]);
             analyzed = true;
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "Error during reading of markdown file.", 22);
+            LOGGER.info("No added blog posts files found.");
+            LOGGER.info("Stopping BlogpostChecker.");
+            System.exit(0);
         }
     }
 
