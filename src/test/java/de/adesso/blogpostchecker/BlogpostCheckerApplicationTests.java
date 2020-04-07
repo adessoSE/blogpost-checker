@@ -1,15 +1,24 @@
 package de.adesso.blogpostchecker;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class BlogpostCheckerApplicationTests {
 
     @Autowired
     private FileAnalyzer fileAnalyzer;
+
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     /* * * * * * * * * * *
      *    Categories     *
@@ -18,7 +27,6 @@ public class BlogpostCheckerApplicationTests {
     @Test
     public void testHasCategories() {
         String headerString = "\ncategories: [TestCategory]\n";
-        System.out.println(fileAnalyzer);
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
     }
@@ -55,7 +63,7 @@ public class BlogpostCheckerApplicationTests {
     public void testHasCategoriesEmptyNotInBrackets() {
         String headerString = "\ncategories: \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
-        Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
+        Assertions.assertThat(postHeader.getCategories() == null);
     }
 
     /* * * * * * * * * * *
