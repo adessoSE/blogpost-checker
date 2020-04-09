@@ -30,3 +30,7 @@ dependencies {
 	compile 'org.yaml:snakeyaml:1.21'
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
+
+test {
+	useJUnitPlatform()
+}
