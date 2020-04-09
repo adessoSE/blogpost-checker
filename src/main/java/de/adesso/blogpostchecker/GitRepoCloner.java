@@ -1,6 +1,7 @@
 package de.adesso.blogpostchecker;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +33,9 @@ public class GitRepoCloner {
                     .setDirectory(new File(configService.getLOCAL_REPO_PATH()))
                     .call());
             LOGGER.info("Repository cloned successfully.");
-        } catch (Exception e) {
-            LOGGER.error("Error while cloning remote git repository", e);
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(20);
+        }
+        catch (GitAPIException e) {
+            ExitBlogpostChecker.exit(LOGGER, "Error while cloning remote git repository.", 20);
         }
     }
 }

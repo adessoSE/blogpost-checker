@@ -9,89 +9,82 @@ public class CheckExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CheckExecutor.class);
 
-    public void executeChecks(PostHeader postHeader, String authors) {
-        checkCategoryOnlyOneEntry(postHeader);
-        checkTagsNotEmpty(postHeader);
-        checkAuthorNotEmpty(postHeader);
-        checkAuthorInYml(postHeader, authors);
-        checkTitleNotEmpty(postHeader);
-        checkLayoutCorrect(postHeader);
-        checkDateMatchesFormat(postHeader);
+    public void executeChecks(PostMetadata postMetadata, String authors) {
+        checkCategoryNotEmpty(postMetadata);
+        checkCategoryOnlyOneEntry(postMetadata);
+        checkTagsNotEmpty(postMetadata);
+        checkAuthorNotEmpty(postMetadata);
+        checkAuthorInYml(postMetadata, authors);
+        checkTitleNotEmpty(postMetadata);
+        checkLayoutCorrect(postMetadata);
+        checkDateMatchesFormat(postMetadata);
     }
 
-    private void checkCategoryOnlyOneEntry(PostHeader header) {
-        if (header.getCategories() != null && !header.getCategories().equals("")) {
-            if (!header.getCategories().contains(",")) {
-                LOGGER.info("Categories checked");
-            } else {
-                LOGGER.error("There are two or more categories.");
-                LOGGER.error("Exiting BlogpostChecker.");
-                System.exit(31);
-            }
+    private void checkCategoryNotEmpty(PostMetadata metadata) {
+        if (checkAttribute(metadata.getCategories())) {
+            LOGGER.info("Categories not empty checked.");
         } else {
-            LOGGER.error("Categories does not match.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(30);
+            ExitBlogpostChecker.exit(LOGGER, "No category found. Exactly one category expected.", 30);
         }
     }
 
-    private void checkTagsNotEmpty(PostHeader header) {
-        if (header.getTags() != null && !header.getTags().equals("")) {
+    private void checkCategoryOnlyOneEntry(PostMetadata metadata) {
+        if (!metadata.getCategories().contains(",")) {
+            LOGGER.info("Categories checked");
+        } else {
+            ExitBlogpostChecker.exit(LOGGER, "Two or more categories found. Exactly one category expected", 31);
+        }
+    }
+
+    private void checkTagsNotEmpty(PostMetadata metadata) {
+        if (checkAttribute(metadata.getTags())) {
             LOGGER.info("Tags checked");
         } else {
-            LOGGER.error("Tags are empty");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(32);
+            ExitBlogpostChecker.exit(LOGGER, "The tags are empty. One or more tags expected.", 32);
         }
     }
 
-    private void checkAuthorNotEmpty(PostHeader header) {
-        if (header.getAuthor() != null && !header.getAuthor().equals("")) {
+    private void checkAuthorNotEmpty(PostMetadata metadata) {
+        if (checkAttribute(metadata.getAuthor())) {
             LOGGER.info("Author checked");
         } else {
-            LOGGER.error("Author is empty.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(33);
+            ExitBlogpostChecker.exit(LOGGER, "No author found. Exactly one author expected.", 33);
         }
     }
 
-    private void checkAuthorInYml(PostHeader header, String authors) {
-        if (authors.contains(header.getAuthor())) {
+    private void checkAuthorInYml(PostMetadata metadata, String authors) {
+        if (authors.contains(metadata.getAuthor())) {
             LOGGER.info("Author is in authors.yml.");
         } else {
-            LOGGER.error("Author not in authors.yml checked.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(34);
+            ExitBlogpostChecker.exit(LOGGER, "The selected author was not found in authors.yml. Make sure author exists and is spelled correctly in the blogpost.", 34);
         }
     }
 
-    private void checkTitleNotEmpty(PostHeader header) {
-        if (header.getTitle() != null && !header.getTitle().equals("")) {
+    private void checkTitleNotEmpty(PostMetadata metadata) {
+        if (checkAttribute(metadata.getTitle())) {
             LOGGER.info("Title checked.");
         } else {
-            LOGGER.error("Title is empty.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(35);
+            ExitBlogpostChecker.exit(LOGGER, "Blogpost title is missing. Provide a title.", 35);
         }
     }
 
-    private void checkLayoutCorrect(PostHeader header) {
-        if (header.getLayout() != null && header.getLayout().equals("post, post-xml")) {
+    private void checkLayoutCorrect(PostMetadata metadata) {
+        if (checkAttribute(metadata.getLayout()) && metadata.getLayout().equals("post, post-xml")) {
             LOGGER.info("Layout checked.");
         } else {
-            LOGGER.error("Layout does not match 'post, post-xml'.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(36);
+            ExitBlogpostChecker.exit(LOGGER, "'Layout'does not contain 'post, post-xml'. Make sure to use 'layout: [post, post-xml]'", 36);
         }
     }
 
-    private void checkDateMatchesFormat(PostHeader header) {
-        if (header.getDate() != null && header.getDate().matches("\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}")) {
+    private void checkDateMatchesFormat(PostMetadata metadata) {
+        if (checkAttribute(metadata.getDate()) && metadata.getDate().matches("\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}")) {
             LOGGER.info("Date checked");
         } else {
-            LOGGER.error("Date does not matched accepted pattern YYYY-MM-DD HH:mm.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(37);
+            ExitBlogpostChecker.exit(LOGGER, "Date format error. Adapt to accepted pattern YYYY-MM-DD HH:mm", 37);
         }
+    }
+
+    private boolean checkAttribute(String attribute) {
+        return attribute != null && !attribute.equals("");
     }
 }
