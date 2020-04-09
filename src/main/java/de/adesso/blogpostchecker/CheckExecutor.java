@@ -40,7 +40,7 @@ public class CheckExecutor {
         if (checkAttribute(metaData.getTags())) {
             LOGGER.info("Tags checked");
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "The tags are empty.", 32);
+            ExitBlogpostChecker.exit(LOGGER, "The tags are empty. One or more tags expected.", 32);
         }
     }
 
