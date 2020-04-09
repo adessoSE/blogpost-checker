@@ -32,7 +32,7 @@ public class CheckExecutor {
         if (!metaData.getCategories().contains(",")) {
             LOGGER.info("Categories checked");
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "There are two or more categories.", 31);
+            ExitBlogpostChecker.exit(LOGGER, "Two or more categories found. Exactly one category expected", 31);
         }
     }
 
