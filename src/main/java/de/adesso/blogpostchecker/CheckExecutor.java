@@ -48,7 +48,7 @@ public class CheckExecutor {
         if (checkAttribute(metaData.getAuthor())) {
             LOGGER.info("Author checked");
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "The author ist empty.", 33);
+            ExitBlogpostChecker.exit(LOGGER, "No author found. Exactly one author expected.", 33);
         }
     }
 
