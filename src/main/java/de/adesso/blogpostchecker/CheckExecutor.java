@@ -72,7 +72,7 @@ public class CheckExecutor {
         if (checkAttribute(metaData.getLayout()) && metaData.getLayout().equals("post, post-xml")) {
             LOGGER.info("Layout checked.");
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "The layout does not match 'post, post-xml'.", 36);
+            ExitBlogpostChecker.exit(LOGGER, "'Layout'does not contain 'post, post-xml'. Make sure to use 'layout: [post, post-xml]'", 36);
         }
     }
 
