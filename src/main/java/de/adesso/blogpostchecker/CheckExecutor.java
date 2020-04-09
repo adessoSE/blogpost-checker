@@ -56,7 +56,7 @@ public class CheckExecutor {
         if (authors.contains(metaData.getAuthor())) {
             LOGGER.info("Author is in authors.yml.");
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "THe author not in authors.yml.", 34);
+            ExitBlogpostChecker.exit(LOGGER, "The selected author was not found in authors.yml. Make sure author exists and is spelled correctly in the blogpost.", 34);
         }
     }
 
