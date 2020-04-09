@@ -24,7 +24,7 @@ public class CheckExecutor {
         if (checkAttribute(metaData.getCategories())) {
             LOGGER.info("Categories not empty checked.");
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "THe categories does not match.", 30);
+            ExitBlogpostChecker.exit(LOGGER, "No category found. Exactly one category expected.", 30);
         }
     }
 
