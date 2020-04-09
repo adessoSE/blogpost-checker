@@ -6,70 +6,70 @@ import org.junit.jupiter.api.Test;
 public class TitleTest extends BaseTest {
 
     @Test
-    public void hasTitle() {
+    public void getHeaderFromStringShouldPass() {
         String headerString = "\ntitle: \"TestTitle\"\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("TestTitle"));
     }
 
     @Test
-    public void hasTitleMoreWords() {
+    public void getHeaderFromStringShouldPassWithTitleContainsMoreWords() {
         String headerString = "\ntitle: \"Test Title\"\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("Test Title"));
     }
 
     @Test
-    public void hasTitleNumbers() {
+    public void getHeaderFromStringShouldPassWithTitleContainsNumbers() {
         String headerString = "\ntitle: \"TestTitle 123\"\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("Test-Title 123"));
     }
 
     @Test
-    public void hasTitleAnd() {
+    public void getHeaderFromStringShouldPassWithTitleContainsAndSymbol() {
         String headerString = "\ntitle: \"TestTitle &\"\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("Test-Title &"));
     }
 
     @Test
-    public void hasTitleDash() {
+    public void getHeaderFromStringShouldPassWithTitleContainsDash() {
         String headerString = "\ntitle: \"Test-Title\"\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("Test-Title"));
     }
 
     @Test
-    public void hasTitleWithComment() {
+    public void getHeaderFromStringShouldPassWithTitleContainsComment() {
         String headerString = "\ntitle: \"TestTitle\" #Only One allowed\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("TestTitle"));
     }
 
     @Test
-    public void hasTitleMultipleWhitespaces() {
+    public void getHeaderFromStringShouldPassWithTitleContainsMultipleWhitespaces() {
         String headerString = "\ntitle:   \"TestTitle\"  \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("TestTitle"));
     }
 
     @Test
-    public void hasTitleNotInQuotes() {
+    public void getHeaderFromStringShouldFailWithTitleNotInQuotes() {
         String headerString = "\ntitle: TestTitle \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle() == null);
     }
 
     @Test
-    public void hasTitleEmpty() {
+    public void getHeaderFromStringShouldFailWithTitleEmpty() {
         String headerString = "\ntitle: \"\"\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle() == null);
     }
 
     @Test
-    public void hasTitleEmptyNotInQuotes() {
+    public void getHeaderFromStringShouldFailWithTitleEmptyAndNotInQuotes() {
         String headerString = "\ntitle: \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTitle() == null);

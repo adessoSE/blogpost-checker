@@ -6,42 +6,42 @@ import org.junit.jupiter.api.Test;
 public class AuthorTest extends BaseTest {
 
     @Test
-    public void hasAuthor() {
+    public void getHeaderFromStringShouldPass() {
         String headerString = "\nauthor: TestAuthor\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("TestAuthor"));
     }
 
     @Test
-    public void hasAuthorDash() {
+    public void getHeaderFromStringShouldPassWithNameContainsDash() {
         String headerString = "\nauthor: Test-Author\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("Test-Author"));
     }
 
     @Test
-    public void hasAuthorNumbers() {
+    public void getHeaderFromStringShouldPassWithNameContainsNumbers() {
         String headerString = "\nauthor: TestAuthor123\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("TestAuthor123"));
     }
 
     @Test
-    public void hasAuthorWithComment() {
+    public void getHeaderFromStringShouldPassWithWithNameContainsComment() {
         String headerString = "\nauthor: TestAuthor #Only One allowed\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("TestAuthor"));
     }
 
     @Test
-    public void hasAuthorMultipleWhitespaces() {
+    public void getHeaderFromStringShouldPassWithNameContainsMultipleWhitespaces() {
         String headerString = "\nauthor:   TestAuthor  \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("TestAuthor"));
     }
 
     @Test
-    public void hasAuthorEmpty() {
+    public void getHeaderFromStringShouldFailWithNameEmpty() {
         String headerString = "\nauthor: \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getAuthor() == null);

@@ -6,49 +6,49 @@ import org.junit.jupiter.api.Test;
 public class LayoutTest extends BaseTest {
 
     @Test
-    public void hasLayout() {
+    public void getHeaderFromStringShouldPass() {
         String headerString = "\nlayout: [post, post-xml]\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getLayout().equals("post, post-xml"));
     }
 
     @Test
-    public void hasLayoutMultipleWhitespaces() {
+    public void getHeaderFromStringShouldPassWithLayoutContainsMultipleWhitespaces() {
         String headerString = "\nlayout:   [post, post-xml]  \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getLayout().equals("post, post-xml"));
     }
 
     @Test
-    public void hasLayoutWithComment() {
+    public void getHeaderFromStringShouldPassWithLayoutContainsComment() {
         String headerString = "\nlayout: [post, post-xml] #Don't change this\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getLayout().equals("post, post-xml"));
     }
 
     @Test
-    public void hasLayoutDoesNotMatch() {
+    public void getHeaderFromStringShouldFailWithLayoutDoesNotMatchLayoutString() {
         String headerString = "\nlayout: [post post-xml]\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getLayout() == null);
     }
 
     @Test
-    public void hasLayoutEmpty() {
+    public void getHeaderFromStringShouldFailWithLayoutEmpty() {
         String headerString = "\nlayout: []\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getLayout() == null);
     }
 
     @Test
-    public void hasLayoutNotInBrackets() {
+    public void getHeaderFromStringShouldFailWithLayoutNotInBrackets() {
         String headerString = "\nlayout: post, post-xml\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getLayout() == null);
     }
 
     @Test
-    public void hasLayoutEmptyNotInBrackets() {
+    public void getHeaderFromStringShouldFailWithLayoutEmptyAndNotInBrackets() {
         String headerString = "\nlayout: \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getLayout() == null);

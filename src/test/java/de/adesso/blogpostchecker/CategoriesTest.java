@@ -6,42 +6,42 @@ import org.junit.jupiter.api.Test;
 public class CategoriesTest extends BaseTest {
     
     @Test
-    public void hasCategories() {
+    public void getHeaderFromStringShouldPass() {
         String headerString = "\ncategories: [TestCategory]\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
     }
 
     @Test
-    public void hasCategoriesWithComment() {
+    public void getHeaderFromStringShouldPassWithCategoriesContainsComment() {
         String headerString = "\ncategories: [TestCategory] #Only One allowed\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
     }
 
     @Test
-    public void hasCategoriesMultipleWhitespaces() {
+    public void getHeaderFromStringShouldPassWithCategoriesContainsMultipleWhitespaces() {
         String headerString = "\ncategories:   [TestCategory]  \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
     }
 
     @Test
-    public void hasCategoriesNotInBrackets() {
+    public void getHeaderFromStringShouldFailWithCategoriesNotInBrackets() {
         String headerString = "\ncategories: TestCategory \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getCategories() == null);
     }
 
     @Test
-    public void hasCategoriesEmpty() {
+    public void getHeaderFromStringShouldFailWithCategoriesEmpty() {
         String headerString = "\ncategories: []\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
     }
 
     @Test
-    public void hasCategoriesEmptyNotInBrackets() {
+    public void getHeaderFromStringShouldFailWithCategoriesEmptyAndNotInBrackets() {
         String headerString = "\ncategories: \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getCategories() == null);

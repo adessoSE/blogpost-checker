@@ -6,49 +6,49 @@ import org.junit.jupiter.api.Test;
 public class TagsTest extends BaseTest {
     
     @Test
-    public void hasTags() {
+    public void getHeaderFromStringShouldPass() {
         String headerString = "\ntags: [TestTag]\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTags().equals("TestTag"));
     }
 
     @Test
-    public void hasTagsMoreTags() {
+    public void getHeaderFromStringShouldPassWithTagsContainsMoreTags() {
         String headerString = "\ntags: [TestTag1, TestTag2]\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTags().equals("TestTag1, TestTag2"));
     }
 
     @Test
-    public void hasTagsWithComment() {
+    public void getHeaderFromStringShouldPassWithTagsContainsComment() {
         String headerString = "\ntags: [TestTag] #Only One allowed\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTags().equals("TestTag"));
     }
 
     @Test
-    public void hasTagsMultipleWhitespaces() {
+    public void getHeaderFromStringShouldPassWithTagsContainsMultipleWhitespaces() {
         String headerString = "\ntags:   [TestTag]  \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTags().equals("TestTag"));
     }
 
     @Test
-    public void hasTagsNotInBrackets() {
+    public void getHeaderFromStringShouldFailWithTagsNotInBrackets() {
         String headerString = "\ntags: TestTag \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTags() == null);
     }
 
     @Test
-    public void hasTagsEmpty() {
+    public void getHeaderFromStringShouldFailWithTagsEmpty() {
         String headerString = "\ntags: []\n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTags() == null);
     }
 
     @Test
-    public void hasTagsEmptyNotInBrackets() {
+    public void getHeaderFromStringShouldFailWithTagsEmptyAndNotInBrackets() {
         String headerString = "\ntags: \n";
         PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
         Assertions.assertThat(postHeader.getTags() == null);
