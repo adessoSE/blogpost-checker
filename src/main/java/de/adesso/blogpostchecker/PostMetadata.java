@@ -1,6 +1,6 @@
 package de.adesso.blogpostchecker;
 
-public class PostMetaData {
+public class PostMetadata {
     private String layout;
     private String title;
     private String date;

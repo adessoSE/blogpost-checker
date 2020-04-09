@@ -32,7 +32,7 @@ public class FileAnalyzer {
     private ConfigService configService;
 
     private boolean analyzed;
-    private PostMetaData metaData;
+    private PostMetadata metadata;
     private String authors;
     private Git localGitInstance;
 
@@ -41,11 +41,11 @@ public class FileAnalyzer {
         this.configService = configService;
     }
 
-    public PostMetaData getMetaData() {
+    public PostMetadata getMetadata() {
         if (!analyzed) {
             analyzeBranch();
         }
-        return metaData;
+        return metadata;
     }
 
     public String getAuthors() {
@@ -68,7 +68,7 @@ public class FileAnalyzer {
                 // this commit is used to have a base to compare the currentHead against.
                 RevCommit baseCommit = commits.stream().filter(commit -> commit.getParentCount() > 1).findFirst().orElse(null);
                 DiffEntry markdownPost = extractNewPostFromCommitDifference(currentHead, baseCommit);
-                extractMetaDataFromFiles(currentHead, markdownPost);
+                extractMetadataFromFiles(currentHead, markdownPost);
             } else {
                 ExitBlogpostChecker.exit(LOGGER, "Error on getting branch from git.", 23);
             }
@@ -85,7 +85,7 @@ public class FileAnalyzer {
                 .collect(Collectors.toList());
     }
 
-    private void extractMetaDataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
+    private void extractMetadataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
         authors = getAuthors(latestCommit);
 
         if (authors == null) {
@@ -95,7 +95,7 @@ public class FileAnalyzer {
         if (blogPost != null) {
             String blogPostPath = blogPost.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? blogPost.getOldPath() : blogPost.getNewPath();
             String blogPostContent = new String(BlobUtils.getRawContent(localGitInstance.getRepository(), latestCommit.toObjectId(), blogPostPath));
-            metaData = extractMetaDataFromString(blogPostContent.split("---")[1]);
+            metadata = extractMetadataFromString(blogPostContent.split("---")[1]);
             analyzed = true;
         } else {
             LOGGER.info("No added blog posts files found.");
@@ -135,22 +135,22 @@ public class FileAnalyzer {
         return df.scan(oldTreeParser, newTreeParser);
     }
 
-    private PostMetaData extractMetaDataFromString(String metaDataString) {
-        PostMetaData metaData = new PostMetaData();
+    private PostMetadata extractMetadataFromString(String metadataString) {
+        PostMetadata metadata = new PostMetadata();
 
-        metaData.setLayout(extractAttributeValueFromMetaData(metaDataString, "\\nlayout:\\s*\\[post, post-xml].*\\n", "\\[(.*?)]", 1));
-        metaData.setTitle(extractAttributeValueFromMetaData(metaDataString, "\\ntitle:\\s*\".*\".*\\n", "\"(.*?)\"", 1));
-        metaData.setDate(extractAttributeValueFromMetaData(metaDataString, "\\ndate:\\s*\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}.*\\n", "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}", 0));
-        metaData.setAuthor(extractAttributeValueFromMetaData(metaDataString, "\\nauthor:\\s*\\w+.*\\n", "(\\w+:\\s*)(\\w+)", 2));
-        metaData.setCategories(extractAttributeValueFromMetaData(metaDataString, "\\ncategories:\\s*\\[.*].*\\n", "\\[(.*)]", 1));
-        metaData.setTags(extractAttributeValueFromMetaData(metaDataString, "\\ntags:\\s*\\[.*].*\\n", "\\[(.*?)]", 1));
+        metadata.setLayout(extractAttributeValueFromMetadata(metadataString, "\\nlayout:\\s*\\[post, post-xml].*\\n", "\\[(.*?)]", 1));
+        metadata.setTitle(extractAttributeValueFromMetadata(metadataString, "\\ntitle:\\s*\".*\".*\\n", "\"(.*?)\"", 1));
+        metadata.setDate(extractAttributeValueFromMetadata(metadataString, "\\ndate:\\s*\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}.*\\n", "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}", 0));
+        metadata.setAuthor(extractAttributeValueFromMetadata(metadataString, "\\nauthor:\\s*\\w+.*\\n", "(\\w+:\\s*)(\\w+)", 2));
+        metadata.setCategories(extractAttributeValueFromMetadata(metadataString, "\\ncategories:\\s*\\[.*].*\\n", "\\[(.*)]", 1));
+        metadata.setTags(extractAttributeValueFromMetadata(metadataString, "\\ntags:\\s*\\[.*].*\\n", "\\[(.*?)]", 1));
 
-        return metaData;
+        return metadata;
     }
 
-    private String extractAttributeValueFromMetaData(String metaDataString, String pattern1, String pattern2, int groupIndex) {
+    private String extractAttributeValueFromMetadata(String metadataString, String pattern1, String pattern2, int groupIndex) {
         Pattern pattern = Pattern.compile(pattern1);
-        Matcher matcher = pattern.matcher(metaDataString);
+        Matcher matcher = pattern.matcher(metadataString);
         if (matcher.find()) {
             String extractedLine = matcher.group();
             Pattern stringPattern = Pattern.compile(pattern2);
