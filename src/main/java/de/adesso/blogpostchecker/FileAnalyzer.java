@@ -68,7 +68,7 @@ public class FileAnalyzer {
                 // this commit is used to have a base to compare the currentHead against.
                 RevCommit baseCommit = commits.stream().filter(commit -> commit.getParentCount() > 1).findFirst().orElse(null);
                 DiffEntry markdownPost = extractNewPostFromCommitDifference(currentHead, baseCommit);
-                extractDataFromFiles(currentHead, markdownPost);
+                extractMetaDataFromFiles(currentHead, markdownPost);
             } else {
                 ExitBlogpostChecker.exit(LOGGER, "Error on getting branch from git.", 23);
             }
@@ -85,7 +85,7 @@ public class FileAnalyzer {
                 .collect(Collectors.toList());
     }
 
-    private void extractDataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
+    private void extractMetaDataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
         authors = getAuthors(latestCommit);
 
         if (authors == null) {
