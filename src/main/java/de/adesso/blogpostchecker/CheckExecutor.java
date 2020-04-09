@@ -80,7 +80,7 @@ public class CheckExecutor {
         if (checkAttribute(metaData.getDate()) && metaData.getDate().matches("\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}")) {
             LOGGER.info("Date checked");
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "The date does not matched accepted pattern YYYY-MM-DD HH:mm..", 37);
+            ExitBlogpostChecker.exit(LOGGER, "Date format error. Adapt to accepted pattern YYYY-MM-DD HH:mm", 37);
         }
     }
 
