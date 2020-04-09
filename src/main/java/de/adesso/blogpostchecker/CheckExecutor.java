@@ -64,7 +64,7 @@ public class CheckExecutor {
         if (checkAttribute(metaData.getTitle())) {
             LOGGER.info("Title checked.");
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "The title is empty.", 35);
+            ExitBlogpostChecker.exit(LOGGER, "Blogpost title is missing. Provide a title.", 35);
         }
     }
 
