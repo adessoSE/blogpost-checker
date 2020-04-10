@@ -89,16 +89,16 @@ public class FileAnalyzer {
     }
 
     private void extractMetadataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
-        authors = getAuthors(latestCommit);
-
-        if (authors == null) {
-            ExitBlogpostChecker.exit(LOGGER, "Error during reading of authors.yml.", 21);
-        }
-
         if (blogPost != null) {
             String blogPostPath = blogPost.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? blogPost.getOldPath() : blogPost.getNewPath();
             String blogPostContent = new String(BlobUtils.getRawContent(localGitInstance.getRepository(), latestCommit.toObjectId(), blogPostPath));
             metadata = extractMetadataFromString(blogPostContent.split("---")[1]);
+
+            author = getAuthors(latestCommit, metadata.getAuthor());
+            if (author == null) {
+                ExitBlogpostChecker.exit(LOGGER, "Error during reading of authors.yml.", 21);
+            }
+
             analyzed = true;
         } else {
             LOGGER.info("No added blog posts files found.");
@@ -176,11 +176,9 @@ public class FileAnalyzer {
              ObjectReader objectReader = localRepo.newObjectReader()) {
 
             ObjectId blobId = treeWalk.getObjectId(0);
-            try (ObjectReader objectReader = localRepo.newObjectReader()) {
-                ObjectLoader objectLoader = objectReader.open(blobId);
-                byte[] bytes = objectLoader.getBytes();
-                return getAuthorFromYml(new String(bytes, StandardCharsets.UTF_8), authorName);
-            }
+            ObjectLoader objectLoader = objectReader.open(blobId);
+            byte[] bytes = objectLoader.getBytes();
+            return getAuthorFromYml(new String(bytes, StandardCharsets.UTF_8), authorName);
         } catch (IOException e) {
             ExitBlogpostChecker.exit(LOGGER, "Error on getting authors.yml content from git.", 26);
         }
@@ -203,7 +201,6 @@ public class FileAnalyzer {
             author.setAvatarUrl(authorMap.get("avatar_url"));
             author.setGithub(authorMap.get("github"));
 
-            System.out.println(author);
             return author;
         } else {
             LOGGER.error("The author not in authors.yml.");
