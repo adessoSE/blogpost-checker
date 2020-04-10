@@ -14,11 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,7 +36,7 @@ public class FileAnalyzer {
 
     private boolean analyzed;
     private PostMetadata metadata;
-    private String authors;
+    private Author author;
     private Git localGitInstance;
 
     @Autowired
@@ -48,11 +51,11 @@ public class FileAnalyzer {
         return metadata;
     }
 
-    public String getAuthors() {
+    public Author getAuthors() {
         if (!analyzed) {
             analyzeBranch();
         }
-        return authors;
+        return author;
     }
 
     private void analyzeBranch() {
@@ -86,16 +89,16 @@ public class FileAnalyzer {
     }
 
     private void extractMetadataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
-        authors = getAuthors(latestCommit);
-
-        if (authors == null) {
-            ExitBlogpostChecker.exit(LOGGER, "Error during reading of authors.yml.", 21);
-        }
-
         if (blogPost != null) {
             String blogPostPath = blogPost.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? blogPost.getOldPath() : blogPost.getNewPath();
             String blogPostContent = new String(BlobUtils.getRawContent(localGitInstance.getRepository(), latestCommit.toObjectId(), blogPostPath));
             metadata = extractMetadataFromString(blogPostContent.split("---")[1]);
+
+            author = getAuthors(latestCommit, metadata.getAuthor());
+            if (author == null) {
+                ExitBlogpostChecker.exit(LOGGER, "Error during reading of authors.yml.", 21);
+            }
+
             analyzed = true;
         } else {
             LOGGER.info("No added blog posts files found.");
@@ -165,8 +168,9 @@ public class FileAnalyzer {
         return branchName[branchName.length - 1];
     }
 
-    private String getAuthors(RevCommit commit) {
-        Repository localRepo = localGitInstance.getRepository();
+    private Author getAuthors(RevCommit commit, String authorName) {
+        Git localGit = LocalRepoCreater.getLocalGit();
+        Repository localRepo = localGit.getRepository();
 
         try (TreeWalk treeWalk = TreeWalk.forPath(localGitInstance.getRepository(), "_data/authors.yml", commit.getTree());
              ObjectReader objectReader = localRepo.newObjectReader()) {
@@ -174,10 +178,34 @@ public class FileAnalyzer {
             ObjectId blobId = treeWalk.getObjectId(0);
             ObjectLoader objectLoader = objectReader.open(blobId);
             byte[] bytes = objectLoader.getBytes();
-            return new String(bytes, StandardCharsets.UTF_8);
-
+            return getAuthorFromYml(new String(bytes, StandardCharsets.UTF_8), authorName);
         } catch (IOException e) {
             ExitBlogpostChecker.exit(LOGGER, "Error on getting authors.yml content from git.", 26);
+        }
+        return null;
+    }
+
+    private Author getAuthorFromYml(String authorYml, String authorName) {
+        Yaml yaml = new Yaml();
+        Map<String, LinkedHashMap<String, String>> obj = yaml.load(authorYml);
+        if (obj.containsKey(authorName)) {
+            Author author = new Author();
+            Map<String, String> authorMap = obj.get(authorName);
+
+            author.setAuthorNickname(authorName);
+            author.setFirstName(authorMap.get("first_name"));
+            author.setLastName(authorMap.get("last_name"));
+            author.setGithubUsername(authorMap.get("github_username"));
+            author.setEmail(authorMap.get("email"));
+            author.setBio(authorMap.get("bio"));
+            author.setAvatarUrl(authorMap.get("avatar_url"));
+            author.setGithub(authorMap.get("github"));
+
+            return author;
+        } else {
+            LOGGER.error("The author not in authors.yml.");
+            LOGGER.error("Exiting BlogpostChecker.");
+            System.exit(26);
         }
         return null;
     }
