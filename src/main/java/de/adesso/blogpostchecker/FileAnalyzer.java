@@ -192,7 +192,7 @@ public class FileAnalyzer {
             Author author = new Author();
             Map<String, String> authorMap = obj.get(authorName);
 
-            author.setDisplayName(authorName);
+            author.setAuthorNickname(authorName);
             author.setFirstName(authorMap.get("first_name"));
             author.setLastName(authorMap.get("last_name"));
             author.setGithubUsername(authorMap.get("github_username"));

@@ -2,7 +2,7 @@ package de.adesso.blogpostchecker;
 
 public class Author {
 
-    private String displayName;
+    private String authorNickname;
     private String firstName;
     private String lastName;
     private String githubUsername;
@@ -14,8 +14,8 @@ public class Author {
     public Author() {
     }
 
-    public Author(String displayName, String firstName, String lastName, String githubUsername, String email, String bio, String avatarUrl, String github) {
-        this.displayName = displayName;
+    public Author(String authorNickname, String firstName, String lastName, String githubUsername, String email, String bio, String avatarUrl, String github) {
+        this.authorNickname = authorNickname;
         this.firstName = firstName;
         this.lastName = lastName;
         this.githubUsername = githubUsername;
@@ -94,11 +94,11 @@ public class Author {
         this.github = github;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getAuthorNickname() {
+        return authorNickname;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setAuthorNickname(String authorNickname) {
+        this.authorNickname = authorNickname;
     }
 }
