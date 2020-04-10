@@ -125,7 +125,7 @@ public class CheckExecutor {
     }
 
     private void checkAuthorEmailCorrectFormat(Author author) {
-        if (author.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
+        if (emailMatchesEmailPattern(author)) {
             LOGGER.info("Author email matches pattern checked");
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Email format error. Adapt to accepted pattern ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$.", 314);
@@ -162,5 +162,9 @@ public class CheckExecutor {
 
     private boolean dateMatchesPattern(PostMetadata metadata) {
         return checkAttribute(metadata.getDate()) && metadata.getDate().matches("\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}");
+    }
+
+    private boolean emailMatchesEmailPattern(Author author) {
+        return author.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
     }
 }
