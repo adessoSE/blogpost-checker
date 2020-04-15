@@ -6,72 +6,72 @@ import org.junit.jupiter.api.Test;
 public class TitleTest extends BaseTest {
 
     @Test
-    public void getHeaderFromStringShouldPass() {
+    public void extractMetadataFromStringUsingRegexShouldPass() {
         String headerString = "\ntitle: \"TestTitle\"\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("TestTitle"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithTitleContainsMoreWords() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithTitleContainsMoreWords() {
         String headerString = "\ntitle: \"Test Title\"\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("Test Title"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithTitleContainsNumbers() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithTitleContainsNumbers() {
         String headerString = "\ntitle: \"TestTitle 123\"\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("Test-Title 123"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithTitleContainsAndSymbol() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithTitleContainsAndSymbol() {
         String headerString = "\ntitle: \"TestTitle &\"\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("Test-Title &"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithTitleContainsDash() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithTitleContainsDash() {
         String headerString = "\ntitle: \"Test-Title\"\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("Test-Title"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithTitleContainsComment() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithTitleContainsComment() {
         String headerString = "\ntitle: \"TestTitle\" #Only One allowed\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("TestTitle"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithTitleContainsMultipleWhitespaces() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithTitleContainsMultipleWhitespaces() {
         String headerString = "\ntitle:   \"TestTitle\"  \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle().equals("TestTitle"));
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithTitleNotInQuotes() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithTitleNotInQuotes() {
         String headerString = "\ntitle: TestTitle \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle() == null);
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithTitleEmpty() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithTitleEmpty() {
         String headerString = "\ntitle: \"\"\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle() == null);
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithTitleEmptyAndNotInQuotes() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithTitleEmptyAndNotInQuotes() {
         String headerString = "\ntitle: \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTitle() == null);
     }
 }

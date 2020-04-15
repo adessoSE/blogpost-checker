@@ -6,44 +6,44 @@ import org.junit.jupiter.api.Test;
 public class CategoriesTest extends BaseTest {
     
     @Test
-    public void getHeaderFromStringShouldPass() {
+    public void extractMetadataFromStringUsingRegexShouldPass() {
         String headerString = "\ncategories: [TestCategory]\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithCategoriesContainsComment() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithCategoriesContainsComment() {
         String headerString = "\ncategories: [TestCategory] #Only One allowed\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithCategoriesContainsMultipleWhitespaces() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithCategoriesContainsMultipleWhitespaces() {
         String headerString = "\ncategories:   [TestCategory]  \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithCategoriesNotInBrackets() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithCategoriesNotInBrackets() {
         String headerString = "\ncategories: TestCategory \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getCategories() == null);
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithCategoriesEmpty() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithCategoriesEmpty() {
         String headerString = "\ncategories: []\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getCategories().equals("TestCategory"));
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithCategoriesEmptyAndNotInBrackets() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithCategoriesEmptyAndNotInBrackets() {
         String headerString = "\ncategories: \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getCategories() == null);
     }
 }

@@ -51,7 +51,7 @@ public class FileAnalyzer {
         return metadata;
     }
 
-    public Author getAuthors() {
+    public Author getAuthor() {
         if (!analyzed) {
             analyzeBranch();
         }
@@ -72,6 +72,7 @@ public class FileAnalyzer {
                 RevCommit baseCommit = commits.stream().filter(commit -> commit.getParentCount() > 1).findFirst().orElse(null);
                 DiffEntry markdownPost = extractNewPostFromCommitDifference(currentHead, baseCommit);
                 extractMetadataFromFiles(currentHead, markdownPost);
+                localGitInstance.close();
             } else {
                 ExitBlogpostChecker.exit(LOGGER, "Error on getting branch from git.", 23);
             }
@@ -92,9 +93,9 @@ public class FileAnalyzer {
         if (blogPost != null) {
             String blogPostPath = blogPost.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? blogPost.getOldPath() : blogPost.getNewPath();
             String blogPostContent = new String(BlobUtils.getRawContent(localGitInstance.getRepository(), latestCommit.toObjectId(), blogPostPath));
-            metadata = extractMetadataFromString(blogPostContent.split("---")[1]);
+            metadata = extractMetadataFromStringUsingRegex(blogPostContent.split("---")[1]);
 
-            author = getAuthors(latestCommit, metadata.getAuthor());
+            author = getAuthor(latestCommit, metadata.getAuthor());
             if (author == null) {
                 ExitBlogpostChecker.exit(LOGGER, "Error during reading of authors.yml.", 21);
             }
@@ -138,7 +139,7 @@ public class FileAnalyzer {
         return df.scan(oldTreeParser, newTreeParser);
     }
 
-    private PostMetadata extractMetadataFromString(String metadataString) {
+    protected PostMetadata extractMetadataFromStringUsingRegex(String metadataString) {
         PostMetadata metadata = new PostMetadata();
 
         metadata.setLayout(extractAttributeValueFromMetadata(metadataString, "\\nlayout:\\s*\\[post, post-xml].*\\n", "\\[(.*?)]", 1));
@@ -168,7 +169,7 @@ public class FileAnalyzer {
         return branchName[branchName.length - 1];
     }
 
-    private Author getAuthors(RevCommit commit, String authorName) {
+    private Author getAuthor(RevCommit commit, String authorName) {
         Git localGit = LocalRepoCreater.getLocalGit();
         Repository localRepo = localGit.getRepository();
 

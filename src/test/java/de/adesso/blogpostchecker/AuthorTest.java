@@ -6,44 +6,45 @@ import org.junit.jupiter.api.Test;
 public class AuthorTest extends BaseTest {
 
     @Test
-    public void getHeaderFromStringShouldPass() {
+    public void extractMetadataFromStringUsingRegexShouldPass() {
+        System.out.println(fileAnalyzer);
         String headerString = "\nauthor: TestAuthor\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("TestAuthor"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithNameContainsDash() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithNameContainsDash() {
         String headerString = "\nauthor: Test-Author\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("Test-Author"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithNameContainsNumbers() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithNameContainsNumbers() {
         String headerString = "\nauthor: TestAuthor123\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("TestAuthor123"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithWithNameContainsComment() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithWithNameContainsComment() {
         String headerString = "\nauthor: TestAuthor #Only One allowed\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("TestAuthor"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithNameContainsMultipleWhitespaces() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithNameContainsMultipleWhitespaces() {
         String headerString = "\nauthor:   TestAuthor  \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("TestAuthor"));
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithNameEmpty() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithNameEmpty() {
         String headerString = "\nauthor: \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getAuthor() == null);
     }
 }

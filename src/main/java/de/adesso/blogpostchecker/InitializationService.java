@@ -42,7 +42,7 @@ public class InitializationService {
 			// Step 2: Clone repo
 			repoCloner.cloneRemoteRepo();
 			PostMetadata header = fileAnalyzer.getMetadata();
-			Author author = fileAnalyzer.getAuthors();
+			Author author = fileAnalyzer.getAuthor();
 
 			// Step 3: Execute checks
 			checkExecutor.executeChecks(header, author);

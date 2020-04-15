@@ -6,51 +6,51 @@ import org.junit.jupiter.api.Test;
 public class LayoutTest extends BaseTest {
 
     @Test
-    public void getHeaderFromStringShouldPass() {
+    public void extractMetadataFromStringUsingRegexShouldPass() {
         String headerString = "\nlayout: [post, post-xml]\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getLayout().equals("post, post-xml"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithLayoutContainsMultipleWhitespaces() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithLayoutContainsMultipleWhitespaces() {
         String headerString = "\nlayout:   [post, post-xml]  \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getLayout().equals("post, post-xml"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithLayoutContainsComment() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithLayoutContainsComment() {
         String headerString = "\nlayout: [post, post-xml] #Don't change this\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getLayout().equals("post, post-xml"));
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithLayoutDoesNotMatchLayoutString() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithLayoutDoesNotMatchLayoutString() {
         String headerString = "\nlayout: [post post-xml]\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getLayout() == null);
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithLayoutEmpty() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithLayoutEmpty() {
         String headerString = "\nlayout: []\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getLayout() == null);
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithLayoutNotInBrackets() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithLayoutNotInBrackets() {
         String headerString = "\nlayout: post, post-xml\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getLayout() == null);
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithLayoutEmptyAndNotInBrackets() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithLayoutEmptyAndNotInBrackets() {
         String headerString = "\nlayout: \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getLayout() == null);
     }
 }

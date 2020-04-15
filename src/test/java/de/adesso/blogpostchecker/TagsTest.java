@@ -6,51 +6,51 @@ import org.junit.jupiter.api.Test;
 public class TagsTest extends BaseTest {
     
     @Test
-    public void getHeaderFromStringShouldPass() {
+    public void extractMetadataFromStringUsingRegexShouldPass() {
         String headerString = "\ntags: [TestTag]\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTags().equals("TestTag"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithTagsContainsMoreTags() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithTagsContainsMoreTags() {
         String headerString = "\ntags: [TestTag1, TestTag2]\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTags().equals("TestTag1, TestTag2"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithTagsContainsComment() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithTagsContainsComment() {
         String headerString = "\ntags: [TestTag] #Only One allowed\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTags().equals("TestTag"));
     }
 
     @Test
-    public void getHeaderFromStringShouldPassWithTagsContainsMultipleWhitespaces() {
+    public void extractMetadataFromStringUsingRegexShouldPassWithTagsContainsMultipleWhitespaces() {
         String headerString = "\ntags:   [TestTag]  \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTags().equals("TestTag"));
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithTagsNotInBrackets() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithTagsNotInBrackets() {
         String headerString = "\ntags: TestTag \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTags() == null);
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithTagsEmpty() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithTagsEmpty() {
         String headerString = "\ntags: []\n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTags() == null);
     }
 
     @Test
-    public void getHeaderFromStringShouldFailWithTagsEmptyAndNotInBrackets() {
+    public void extractMetadataFromStringUsingRegexShouldFailWithTagsEmptyAndNotInBrackets() {
         String headerString = "\ntags: \n";
-        PostHeader postHeader = fileAnalyzer.getHeaderFromString(headerString);
+        PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getTags() == null);
     }
 }
