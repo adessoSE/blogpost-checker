@@ -1,5 +1,7 @@
 package de.adesso.blogpostchecker;
 
+import java.util.Objects;
+
 public class PostMetadata {
     private String layout;
     private String title;
@@ -54,5 +56,23 @@ public class PostMetadata {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PostMetadata metadata = (PostMetadata) o;
+        return layout.equals(metadata.layout) &&
+                title.equals(metadata.title) &&
+                date.equals(metadata.date) &&
+                author.equals(metadata.author) &&
+                categories.equals(metadata.categories) &&
+                tags.equals(metadata.tags);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(layout, title, date, author, categories, tags);
     }
 }

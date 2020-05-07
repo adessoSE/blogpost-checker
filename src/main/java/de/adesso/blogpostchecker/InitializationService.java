@@ -3,11 +3,13 @@ package de.adesso.blogpostchecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
 @Service
+@Profile("!test")
 public class InitializationService {
 
 	private GitRepoCloner repoCloner;
@@ -40,7 +42,7 @@ public class InitializationService {
 			// Step 2: Clone repo
 			repoCloner.cloneRemoteRepo();
 			PostMetadata header = fileAnalyzer.getMetadata();
-			Author author = fileAnalyzer.getAuthors();
+			Author author = fileAnalyzer.getAuthor();
 
 			// Step 3: Execute checks
 			checkExecutor.executeChecks(header, author);

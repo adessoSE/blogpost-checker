@@ -1,0 +1,10 @@
+# pack-refs with: peeled fully-peeled 
+2a9f2dec0dd1559307ea07bed8ad876b43f1156c refs/heads/Deploy-Keras-models-to-production-level-easily
+cce4fc438e39adf7baa51205a628e036745e8a3c refs/heads/dependabot/bundler/mini_magick-4.9.4
+6e0874e1988901a400b07a98318536b1fe54eea3 refs/heads/fix/micronaut
+731e1505da187b34f2d0f17d63019ebd638ccf3b refs/heads/master
+ad1d01ba2147882cb14ffcfe4fa509c11c7935b3 refs/heads/neo4j-blog
+fe571ef2053d2701474572f86b5b44f5d3ce556c refs/heads/new-post
+9d5931462458a6946a15af7477f1dba5d99ebdf4 refs/heads/second-post
+a54b06aef3aa5cbeef94b0b7708aadd95e180d1c refs/heads/update-categories
+d1b129d324bac739d0981005201d274c2991c508 refs/heads/update-readme

@@ -1,5 +1,7 @@
 package de.adesso.blogpostchecker;
 
+import java.util.Objects;
+
 public class Author {
 
     private String authorNickname;
@@ -100,5 +102,25 @@ public class Author {
 
     public void setAuthorNickname(String authorNickname) {
         this.authorNickname = authorNickname;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Author author = (Author) o;
+        return authorNickname.equals(author.authorNickname) &&
+                firstName.equals(author.firstName) &&
+                lastName.equals(author.lastName) &&
+                githubUsername.equals(author.githubUsername) &&
+                email.equals(author.email) &&
+                bio.equals(author.bio) &&
+                avatarUrl.equals(author.avatarUrl) &&
+                github.equals(author.github);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(authorNickname, firstName, lastName, githubUsername, email, bio, avatarUrl, github);
     }
 }
