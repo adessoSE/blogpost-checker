@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class BaseTest {
 
     static {
-        System.setProperty("REPOSITORY_REMOTE_URL", "https://github.com/jo2/devblog");
+        System.setProperty("REPOSITORY_REMOTE_URL", BaseTest.class.getClassLoader().getResource("devblog.git").toString());
         System.setProperty("REPOSITORY_BRANCH_NAME", "second-post");
     }
 
