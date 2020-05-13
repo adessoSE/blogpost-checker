@@ -10,7 +10,7 @@ public class CheckExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CheckExecutor.class);
 
     public void executeChecks(PostMetadata postMetadata, Author author) {
-        checkPostCategoryOnlyOneEntry(postMetadata);
+        checkPostCategoryNotEmpty(postMetadata);
         checkPostCategoryOnlyOneEntry(postMetadata);
         checkPostTagsNotEmpty(postMetadata);
         checkPostAuthorNotEmpty(postMetadata);
