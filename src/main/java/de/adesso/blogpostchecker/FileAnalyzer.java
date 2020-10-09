@@ -19,6 +19,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +32,10 @@ import java.util.stream.StreamSupport;
 public class FileAnalyzer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileAnalyzer.class);
+    private static final String ADD_POST_COMMIT_MESSAGE_PATTERN =
+            "^ADD\\sassets\\/first-spirit-xml\\/\\d{4}-\\d{2}-\\d{2}\\/\\d{4}-\\d{2}-\\d{2}.*\\.xml$";
 
-    private ConfigService configService;
+    private final ConfigService configService;
 
     private boolean analyzed;
     private PostMetadata metadata;
@@ -69,7 +72,10 @@ public class FileAnalyzer {
                 RevCommit currentHead = commits.get(0);
                 // a commit that was definitely there before the branch of this pull request was created.
                 // this commit is used to have a base to compare the currentHead against.
-                RevCommit baseCommit = commits.stream().filter(commit -> commit.getParentCount() > 1).findFirst().orElse(null);
+                RevCommit baseCommit = commits.stream().filter(commit -> commit.getShortMessage().matches(ADD_POST_COMMIT_MESSAGE_PATTERN))
+                        .findFirst().orElse(null);
+                LOGGER.info("Analysing commit {}: {} by {}", currentHead.getName(), currentHead.getShortMessage(),
+                        currentHead.getAuthorIdent().getEmailAddress());
                 DiffEntry markdownPost = extractNewPostFromCommitDifference(currentHead, baseCommit);
                 extractMetadataFromFiles(currentHead, markdownPost);
                 localGitInstance.close();
@@ -91,6 +97,7 @@ public class FileAnalyzer {
 
     private void extractMetadataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
         if (blogPost != null) {
+            LOGGER.info("Analysing post {}", blogPost.getNewPath());
             String blogPostPath = blogPost.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? blogPost.getOldPath() : blogPost.getNewPath();
             String blogPostContent = new String(BlobUtils.getRawContent(localGitInstance.getRepository(), latestCommit.toObjectId(), blogPostPath));
             metadata = extractMetadataFromStringUsingRegex(blogPostContent.split("---")[1]);
@@ -102,9 +109,7 @@ public class FileAnalyzer {
 
             analyzed = true;
         } else {
-            LOGGER.info("No added blog posts files found.");
-            LOGGER.info("Stopping BlogpostChecker.");
-            System.exit(0);
+            ExitBlogpostChecker.exitInfo(LOGGER, "Found no blog post to check.", 0);
         }
     }
 
@@ -204,9 +209,8 @@ public class FileAnalyzer {
 
             return author;
         } else {
-            LOGGER.error("The author not in authors.yml.");
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(26);
+            ExitBlogpostChecker.exit(LOGGER, MessageFormat.format("The specified author with name \"{0}\" is not listed in authors.yml.",
+                    authorName), 26);
         }
         return null;
     }
