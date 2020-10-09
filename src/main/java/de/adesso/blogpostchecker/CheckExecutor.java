@@ -30,7 +30,7 @@ public class CheckExecutor {
 
     private void checkPostCategoryNotEmpty(PostMetadata metadata) {
         if (checkAttribute(metadata.getCategories())) {
-            LOGGER.info("Categories not empty checked.");
+            LOGGER.info("Categories not empty checked, value: \"{}\"", metadata.getCategories());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "No category found. Exactly one category expected.", 300);
         }
@@ -46,7 +46,7 @@ public class CheckExecutor {
 
     private void checkPostTagsNotEmpty(PostMetadata metadata) {
         if (checkAttribute(metadata.getTags())) {
-            LOGGER.info("Tags checked");
+            LOGGER.info("Tags checked, value: \"{}\"", metadata.getTags());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "The tags are empty. One or more tags expected.", 302);
         }
@@ -54,7 +54,7 @@ public class CheckExecutor {
 
     private void checkPostAuthorNotEmpty(PostMetadata metadata) {
         if (checkAttribute(metadata.getAuthor())) {
-            LOGGER.info("Author checked");
+            LOGGER.info("Author checked, value: \"{}\"", metadata.getAuthor());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "No author found. Exactly one author expected.", 303);
         }
@@ -70,7 +70,7 @@ public class CheckExecutor {
 
     private void checkPostTitleNotEmpty(PostMetadata metadata) {
         if (checkAttribute(metadata.getTitle())) {
-            LOGGER.info("Title checked.");
+            LOGGER.info("Title checked, value: \"{}\"", metadata.getTitle());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Blogpost title is missing. Provide a title.", 305);
         }
@@ -78,7 +78,7 @@ public class CheckExecutor {
 
     private void checkPostLayoutCorrect(PostMetadata metadata) {
         if (checkAttribute(metadata.getLayout()) && metadata.getLayout().equals("post, post-xml")) {
-            LOGGER.info("Layout checked.");
+            LOGGER.info("Layout checked, value: \"{}\"", metadata.getLayout());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "'Layout'does not contain 'post, post-xml'. Make sure to use 'layout: [post, post-xml]'", 306);
         }
@@ -86,7 +86,7 @@ public class CheckExecutor {
 
     private void checkPostDateMatchesFormat(PostMetadata metadata) {
         if (dateMatchesPattern(metadata)) {
-            LOGGER.info("Date checked");
+            LOGGER.info("Date checked, value: \"{}\"", metadata.getDate());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Date format error. Adapt to accepted pattern YYYY-MM-DD HH:mm", 307);
         }
@@ -94,7 +94,7 @@ public class CheckExecutor {
 
     private void checkAuthorFirstNameNotEmpty(Author author) {
         if (checkAttribute(author.getFirstName())) {
-            LOGGER.info("Author first name checked");
+            LOGGER.info("Author first name checked, value: \"{}\"", author.getFirstName());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Author first name is missing. Provide a first name.", 310);
         }
@@ -102,7 +102,7 @@ public class CheckExecutor {
 
     private void checkAuthorLastNameNotEmpty(Author author) {
         if (checkAttribute(author.getLastName())) {
-            LOGGER.info("Author last name checked");
+            LOGGER.info("Author last name checked, value: \"{}\"", author.getLastName());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Author last name is missing. Provide a last name.", 311);
         }
@@ -110,7 +110,7 @@ public class CheckExecutor {
 
     private void checkAuthorGithubUsernameNotEmpty(Author author) {
         if (checkAttribute(author.getGithubUsername())) {
-            LOGGER.info("Author github username checked");
+            LOGGER.info("Author github username checked, value: \"{}\"", author.getGithubUsername());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Author github username is missing. Provide a github username.", 312);
         }
@@ -118,7 +118,7 @@ public class CheckExecutor {
 
     private void checkAuthorEmailNotEmpty(Author author) {
         if (checkAttribute(author.getEmail())) {
-            LOGGER.info("Author email checked");
+            LOGGER.info("Author email checked, value: \"{}\"", author.getEmail());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Author email is missing. Provide a email.", 313);
         }
@@ -134,7 +134,8 @@ public class CheckExecutor {
 
     private void checkAuthorBioNotEmpty(Author author) {
         if (checkAttribute(author.getBio())) {
-            LOGGER.info("Author bio checked");
+            LOGGER.info("Author bio checked, value: \"{}\"", author.getBio());
+
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Author bio is missing. Provide a bio.", 315);
         }
@@ -142,7 +143,8 @@ public class CheckExecutor {
 
     private void checkAuthorAvatarUrlNotEmpty(Author author) {
         if (checkAttribute(author.getAvatarUrl())) {
-            LOGGER.info("Author avatar url checked");
+            LOGGER.info("Author avatar url checked, value: \"{}\"", author.getAvatarUrl());
+
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Author avatar url is missing. Provide an avatar url.", 316);
         }
@@ -150,7 +152,7 @@ public class CheckExecutor {
 
     private void checkAuthorGithubNotEmpty(Author author) {
         if (checkAttribute(author.getGithub())) {
-            LOGGER.info("Author github checked");
+            LOGGER.info("Author github checked, value: \"{}\"", author.getGithub());
         } else {
             ExitBlogpostChecker.exit(LOGGER, "Author github is missing. Provide a github link.", 317);
         }

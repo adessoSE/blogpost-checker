@@ -31,6 +31,8 @@ import java.util.stream.StreamSupport;
 public class FileAnalyzer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileAnalyzer.class);
+    private static final String ADD_POST_COMMIT_MESSAGE_PATTERN =
+            "^ADD\\sassets\\/first-spirit-xml\\/\\d{4}-\\d{2}-\\d{2}\\/\\d{4}-\\d{2}-\\d{2}.*\\.xml$";
 
     private ConfigService configService;
 
@@ -69,7 +71,10 @@ public class FileAnalyzer {
                 RevCommit currentHead = commits.get(0);
                 // a commit that was definitely there before the branch of this pull request was created.
                 // this commit is used to have a base to compare the currentHead against.
-                RevCommit baseCommit = commits.stream().filter(commit -> commit.getParentCount() > 1).findFirst().orElse(null);
+                RevCommit baseCommit = commits.stream().filter(commit -> commit.getShortMessage().matches(ADD_POST_COMMIT_MESSAGE_PATTERN))
+                        .findFirst().orElse(null);
+                LOGGER.info("Analysing commit {}: {} by {}", currentHead.getName(), currentHead.getShortMessage(),
+                        currentHead.getAuthorIdent().getEmailAddress());
                 DiffEntry markdownPost = extractNewPostFromCommitDifference(currentHead, baseCommit);
                 extractMetadataFromFiles(currentHead, markdownPost);
                 localGitInstance.close();
@@ -91,6 +96,7 @@ public class FileAnalyzer {
 
     private void extractMetadataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
         if (blogPost != null) {
+            LOGGER.info("Analysing post {}", blogPost.getNewPath());
             String blogPostPath = blogPost.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? blogPost.getOldPath() : blogPost.getNewPath();
             String blogPostContent = new String(BlobUtils.getRawContent(localGitInstance.getRepository(), latestCommit.toObjectId(), blogPostPath));
             metadata = extractMetadataFromStringUsingRegex(blogPostContent.split("---")[1]);
@@ -204,7 +210,7 @@ public class FileAnalyzer {
 
             return author;
         } else {
-            LOGGER.error("The author not in authors.yml.");
+            LOGGER.error("The specified author with name \"{}\" is not listed in authors.yml.", authorName);
             LOGGER.error("Exiting BlogpostChecker.");
             System.exit(26);
         }
