@@ -7,15 +7,16 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.text.MessageFormat;
 
 @Service
 @Profile("!test")
 public class InitializationService {
 
-	private GitRepoCloner repoCloner;
-	private ConfigService configService;
-	private CheckExecutor checkExecutor;
-	private FileAnalyzer fileAnalyzer;
+	private final GitRepoCloner repoCloner;
+	private final ConfigService configService;
+	private final CheckExecutor checkExecutor;
+	private final FileAnalyzer fileAnalyzer;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
@@ -47,13 +48,9 @@ public class InitializationService {
 			// Step 3: Execute checks
 			checkExecutor.executeChecks(header, author);
 		} catch(Exception e) {
-			LOGGER.error("UNDEFINED EXCEPTION", e);
-			LOGGER.error("Exiting BlogpostChecker.");
-			System.exit(1);
+			ExitBlogpostChecker.exit(LOGGER, MessageFormat.format("UNDEFINED EXCEPTION {0}", e.getMessage()), 1);
 		}
 
-		LOGGER.info("Execution of BlogpostChecker successful.");
-		LOGGER.info("Stopping BlogpostChecker.");
-		System.exit(0);
+		ExitBlogpostChecker.exitInfo(LOGGER, "Execution of BlogpostChecker successful.", 0);
 	}
 }

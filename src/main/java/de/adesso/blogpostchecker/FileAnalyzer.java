@@ -19,6 +19,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class FileAnalyzer {
     private static final String ADD_POST_COMMIT_MESSAGE_PATTERN =
             "^ADD\\sassets\\/first-spirit-xml\\/\\d{4}-\\d{2}-\\d{2}\\/\\d{4}-\\d{2}-\\d{2}.*\\.xml$";
 
-    private ConfigService configService;
+    private final ConfigService configService;
 
     private boolean analyzed;
     private PostMetadata metadata;
@@ -108,9 +109,7 @@ public class FileAnalyzer {
 
             analyzed = true;
         } else {
-            LOGGER.info("No added blog posts files found.");
-            LOGGER.info("Stopping BlogpostChecker.");
-            System.exit(0);
+            ExitBlogpostChecker.exitInfo(LOGGER, "No added blog posts files found.", 0);
         }
     }
 
@@ -210,9 +209,8 @@ public class FileAnalyzer {
 
             return author;
         } else {
-            LOGGER.error("The specified author with name \"{}\" is not listed in authors.yml.", authorName);
-            LOGGER.error("Exiting BlogpostChecker.");
-            System.exit(26);
+            ExitBlogpostChecker.exit(LOGGER, MessageFormat.format("The specified author with name \"{0}\" is not listed in authors.yml.",
+                    authorName), 26);
         }
         return null;
     }

@@ -1,11 +1,13 @@
 package de.adesso.blogpostchecker;
 
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AnalyzerTest extends BaseTest {
@@ -17,11 +19,7 @@ public class AnalyzerTest extends BaseTest {
 
     @AfterAll
     public void cleanUp() {
-        try {
-            FileUtils.deleteDirectory(new File(configService.getLOCAL_REPO_PATH()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileSystemUtils.deleteRecursively(new File(configService.getLOCAL_REPO_PATH()));
     }
 
     @Test
