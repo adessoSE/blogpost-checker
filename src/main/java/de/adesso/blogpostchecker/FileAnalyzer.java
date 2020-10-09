@@ -109,7 +109,7 @@ public class FileAnalyzer {
 
             analyzed = true;
         } else {
-            ExitBlogpostChecker.exitInfo(LOGGER, "No added blog posts files found.", 0);
+            ExitBlogpostChecker.exitInfo(LOGGER, "Found no blog post to check.", 0);
         }
     }
 
