@@ -35,7 +35,8 @@ public class GitRepoCloner {
             LOGGER.info("Repository cloned successfully.");
         }
         catch (GitAPIException e) {
-            ExitBlogpostChecker.exit(LOGGER, "Error while cloning remote git repository.", 20);
+            LOGGER.error(e.getMessage(), e);
+            ExitBlogpostChecker.exit(LOGGER, "Error while cloning remote git repository: " + configService.getREPOSITORY_REMOTE_URL(), 20);
         }
     }
 }
