@@ -1,8 +1,11 @@
 # blogpost-checker
-Checks the format of blogposts for jekyll blogs. An example for such a blog is the [adesso devblog](https://github.com/adessoAG/devblog). BlogpostChecker checks if certain formats for the `authors.yml` and the blogpost metadata are met. 
+Checks the format of blogposts for jekyll blogs.
+An example for such a blog is the [adesso devblog](https://github.com/adessoAG/devblog).
+BlogpostChecker checks if certain formats for the `authors.yml` and the blogpost metadata are met. 
 
-## executed checks
-The post metadata is expected to look something like this:
+## Executed checks
+The post metadata is expected to look like this:
+
 ```
 ---
 layout: [post, post-xml]              
@@ -10,7 +13,7 @@ title:  "Title"
 date:   date              
 modified_date:        
 author: auhorname                       
-categories: [a category]
+categories: [a single category]
 tags: [tag 1, tag2, tag 3]     
 ---
 ```
@@ -30,6 +33,7 @@ These checks are currently executed for the post metadata:
 * `date` must match the format `YYYY-MM-DD HH:mm`
 
 An entry in the `authors.yml` file is expected to look something like this, where namekey has to match the author name specified in the post metadata:
+
 ```
 namekey:
   first_name: first name
@@ -51,15 +55,42 @@ These checks are currently executed for the `authors.yml`:
 * `avatar_url` cannot be empty
 * `github` cannot be empty
 
-## usage
-BlogpostChecker comes in as a docker container and is meant to be used in a GitHub action. It finishes with a non zero exit code if the checks fail so it can be used to evaluate a pull request. 
+## Usage
+BlogpostChecker comes in as a docker container and can either be used standalone or in a GitHub Action.
+A non zero exit code will indicate a failed check and can be used to evaluate pull requests.
 
+Two arguments are required to run the application:
+- `REPOSITORY_REMOTE_URL` = https://a-url-to-your-repository.git
+- `REPOSITORY_BRANCH_NAME` = the-git-branch-to-be-checked
+
+### Inside a GitHub Action 
 ```
-// TODO once the image is published on jekyll2cms/blogpostchecker
+docker run 
+--env REPOSITORY_REMOTE_URL='${{ secrets.REPOSITORY_REMOTE_URL }}' 
+--env REPOSITORY_BRANCH_NAME='${{ github.head_ref }}' 
+jekyll2cms/blogpost-checker:1.0.0
 ```
 
-## add custom checks
-According to different requirements different checks might be needed. In order to implement your own checks, you can edit the `CheckExecutor.java`. In there you can write your own check method and pass the metadata or the author or both as parameters to your method. The method itself should be structured like this:
+In the case of the adesso devblog, we want every pull request to be checked and thus set `REPOSITORY_BRANCH_NAME` dynamically to the current branch.
+This is achieved via `${{ github.head_ref }}`.
+
+We also use a [GitHub Secret](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository) to store `REPOSITORY_REMOTE_URL`.
+You don't have to though.
+
+### Regular docker execution
+```
+docker run 
+--env REPOSITORY_REMOTE_URL=https://a-url-to-your-repository.git 
+--env REPOSITORY_BRANCH_NAME=the-git-branch-to-be-checked 
+jekyll2cms/blogpost-checker:1.0.0
+```
+
+## Adding custom checks
+According to different requirements different checks might be needed.
+In order to implement your own checks, you can edit the `CheckExecutor.java`.
+In there you can write your own check method and pass the metadata or the author or both as parameters to your method.
+The method itself should be structured like this:
+
 ```
 if (<your check condition>) {
     LOGGER.info("<your check was susccessful>");
