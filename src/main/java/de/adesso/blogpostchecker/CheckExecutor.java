@@ -60,14 +60,6 @@ public class CheckExecutor {
         }
     }
 
-    private void checkPostAuthorInYml(PostMetadata metadata, String authors) {
-        if (authors.contains(metadata.getAuthor())) {
-            LOGGER.info("Author is in authors.yml.");
-        } else {
-            ExitBlogpostChecker.exit(LOGGER, "The selected author was not found in authors.yml. Make sure author exists and is spelled correctly in the blogpost.", 304);
-        }
-    }
-
     private void checkPostTitleNotEmpty(PostMetadata metadata) {
         if (checkAttribute(metadata.getTitle())) {
             LOGGER.info("Title checked, value: \"{}\"", metadata.getTitle());
