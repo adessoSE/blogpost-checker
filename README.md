@@ -3,6 +3,7 @@ Run checks to verify metadata of blog posts 📄✔️ (Designed for [Jekyll](ht
 
 Terminates with a non 0 status on [errors](#Error-codes) ❌.
 Can be integrated with GitHub Actions to [check incoming pull requests](#Execution-via-GitHub-Action) 🚦.
+Used in production for our very own [adesso devblog](github.com/adessoAG/devblog).
 
 ## Executed checks
 By default, executed checks depend on `authors.yml` and the metadata of the most recent blog post.
