@@ -14,12 +14,12 @@ Metadata for adesso blog posts is expected to look like this:
 ```
 ---
 layout: [post, post-xml]              
-title:  "Title"            
-date:   date              
-modified_date:        
-author: authorNickname                       
+title:  "Title"
+date:   YYYY-MM-DD HH:MM      
+modified_date: YYYY-MM-DD HH:MM
+author: authorNickname
 categories: [a single category]
-tags: [tag 1, tag2, tag 3]     
+tags: [tag 1, tag2, tag 3]
 ---
 ```
 
@@ -39,7 +39,7 @@ These checks are currently executed for the post metadata:
 
 ### Checking authors data
 Every entry in `authors.yml` is expected to look like this.
-Post authors have to have a matching entry in this file and a post's metadata.
+A post's metadata has to have a nickname that is listed in that file.
 
 ```yml
 authorNickname:
@@ -64,8 +64,10 @@ These checks are currently executed for the `authors.yml`:
 
 # Usage
 BlogpostChecker comes in a docker container and can either be used standalone or in a GitHub Action.
-A non zero exit code will indicate a failed check and evaluate pull requests.
+A non zero exit code will indicate a failed check.
+This mechanism can be applied to check pull requests.
 
+## Required arguments
 Two arguments are required to run the application:
 - `REPOSITORY_REMOTE_URL` = https://a-url-to-your-repository
 - `REPOSITORY_BRANCH_NAME` = the-git-branch-to-be-checked
@@ -74,12 +76,26 @@ Updates to the codebase are pushed to [jekyll2cms/blogpost-checker](https://hub.
 Make sure to explicitly set the tag to `1.0.0`.
 At this point, no [semantic versioning](https://semver.org/) is implemented.
 
-## Inside a GitHub Action 
-```docker
-docker run 
---env REPOSITORY_REMOTE_URL='${{ secrets.REPOSITORY_REMOTE_URL }}' 
---env REPOSITORY_BRANCH_NAME='${{ github.head_ref }}' 
-jekyll2cms/blogpost-checker:1.0.0
+# Execution via GitHub Action
+Create a workflow file in `.github/workflows/run-blogpost-checker.yml`
+
+```yml
+name: run-blogpost-checker
+
+on: [pull_request]
+
+jobs:
+  pull-and-run-blogpost-checker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+        
+      - name: Pull Docker image
+        run: docker pull jekyll2cms/blogpost-checker:1.0.0
+
+      - name: Run Docker image
+        run: docker run --env REPOSITORY_REMOTE_URL='${{ secrets.REPOSITORY_REMOTE_URL }}' --env REPOSITORY_BRANCH_NAME='${{ github.head_ref }}' jekyll2cms/blogpost-checker:1.0.0
 ```
 
 In the case of the adesso devblog, we want every pull request to be checked and thus set `REPOSITORY_BRANCH_NAME` dynamically to the current branch.
@@ -88,8 +104,10 @@ This is achieved via `${{ github.head_ref }}`.
 We also use a [GitHub Secret](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository) to store `REPOSITORY_REMOTE_URL`.
 You don't have to though.
 
-## Regular docker execution
-The environment variables are passed as simple strings.
+# Execution via Docker
+The process is very similar.
+Environment arguments are passed as simple strings though.
+
 ```docker
 docker run 
 --env REPOSITORY_REMOTE_URL=https://a-url-to-your-repository 
@@ -97,20 +115,25 @@ docker run
 jekyll2cms/blogpost-checker:1.0.0
 ```
 
-## As a Java Gradle application
-The application might as well be run directly from your IDE.
-Initialize the [Gradle](https://gradle.org/ ) project and run `gradle bootRun`.
-Follow this guide to [set the environment arguments in IntelliJ](https://www.jetbrains.com/help/objc/add-environment-variables-and-program-arguments.html#add-environment-variables).
+# Execution via Gradle
+The application can be run directly from your IDE.
+We recommend this approach only for development purposes.
 
-### Known issue with Gradle execution
-There is a known issue with local execution when attempting multiple runs:
+1. Initialize the [Gradle](https://gradle.org/ ) project
+2. Make sure to set the environment arguments!
+3. Run `gradle bootRun`.
+
+Follow this guide to [define environment arguments in IntelliJ](https://www.jetbrains.com/help/objc/add-environment-variables-and-program-arguments.html#add-environment-variables).
+
+## Known issue with Gradle execution
+There is a known issue with consecutive runs:
 
 ```java
 UNDEFINED EXCEPTION
-org.eclipse.jgit.api.errors.JGitInternalException: Destination path "repo" already exists and is not an empty directory
+org.eclipse.jgit.api.errors.JGitInternalException: Destination path "repository-to-be-checked" already exists and is not an empty directory
 ```
 
-If you encounter this error, delete the `repo` directory.
+Delete the `repository-to-be-checked` directory and try again if you encounter this error.
 
 # Adding custom checks
 Your custom check methods should be added inside `CheckExecutor.java`.
@@ -127,3 +150,6 @@ The method structure might look like this:
         }
   }
 ```
+
+# Error codes
+Available error codes include:
