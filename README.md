@@ -1,7 +1,8 @@
 # blogpost-checker
-Checks the format of blogposts for jekyll blogs.
-An example for such a blog is the [adesso devblog](https://github.com/adessoAG/devblog).
-BlogpostChecker checks if certain formats for the `authors.yml` and the blogpost metadata are met. 
+Run checks to verify metadata of blog posts 📄✔️ (Designed for [Jekyll](https://jekyllrb.com) blogs).
+
+Terminates with a non 0 status on [errors](#Error-codes) ❌.
+Can be integrated with GitHub Actions to [check incoming pull requests](#Execution-via-GitHub-Action) 🚦.
 
 ## Executed checks
 By default, executed checks depend on `authors.yml` and the metadata of the most recent blog post.
