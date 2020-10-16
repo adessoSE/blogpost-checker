@@ -114,9 +114,16 @@ public class FileAnalyzer {
     }
 
     private Ref getBranchByName() throws GitAPIException {
-        return localGitInstance.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()
+        Ref branch = localGitInstance.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()
                 .stream().filter(ref -> extractBranchName(ref).equals(configService.getREPOSITORY_BRANCH_NAME()))
                 .findFirst().orElse(null);
+
+        if (branch == null) {
+            branch = localGitInstance.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()
+                    .stream().filter(ref -> extractBranchName(ref).equals(configService.getREPOSITORY_BRANCH_NAME()))
+                    .findFirst().orElse(null);
+        }
+        return branch;
     }
 
     private DiffEntry extractNewPostFromCommitDifference(RevCommit firstCommit, RevCommit secondCommit) throws IOException {
