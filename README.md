@@ -154,3 +154,28 @@ The method structure might look like this:
 
 # Error codes
 Available error codes include:
+
+| Error code | Message |
+| ---------- | ------- |
+| 20 | Error while cloning remote git repository |
+| 21 | Error reading authors.yml |
+| 23 | Error getting git branch |
+| 24 | Error accessing git api |
+| 25 | Error getting file content |
+| 26 | Error getting authors.yml content from git |
+| 300 | No category found. Exactly one category expected |
+| 301 | Two or more categories found. Exactly one category expected |
+| 302 | The tags are empty. One or more tags expected |
+| 303 | No author found. Exactly one author expected |
+| 304 | The selected author was not found in authors.yml. Make sure author exists and is spelled correctly in the blogpost |
+| 305 | Blogpost title is missing. Provide a title |
+| 306 | 'Layout'does not contain 'post, post-xml'. Make sure to use 'layout: [post, post-xml]' |
+| 307 | Date format error. Adapt to accepted pattern YYYY-MM-DD HH:mm |
+| 310 | Author first name is missing. Provide a first name |
+| 311 | Author last name is missing. Provide a last name |
+| 312 | Author github username is missing. Provide a github username |
+| 313 | Author email is missing. Provide a email |
+| 314 | Email format error. Adapt to accepted pattern ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$ |
+| 315 | Author bio is missing. Provide a bio |
+| 316 | Author avatar url is missing. Provide an avatar url |
+| 317 | Author github is missing. Provide a github link |
