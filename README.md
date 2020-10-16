@@ -31,7 +31,7 @@ These checks are currently executed for the post metadata:
 * `categories` must be placed in brackets (`[ ]`)
 * `tags` cannot be empty
 * `tags` must be placed in brackets (`[ ]`)
-* `author` cannnot be empty
+* `author` cannot be empty
 * `author` the name must be listed in the authors.yml file
 * `title` cannot be empty
 * `title` has to be placed in quotes
@@ -65,7 +65,7 @@ These checks are currently executed for the `authors.yml`:
 * `github` cannot be empty
 
 # Usage
-BlogpostChecker comes in a docker container and can either be used standalone or in a GitHub Action.
+Blogpost-Checker comes in a docker container and can either be used standalone or in a GitHub Action.
 A non zero exit code will indicate a failed check.
 This mechanism can be applied to check pull requests.
 
@@ -170,7 +170,7 @@ Available error codes include:
 | 303 | No author found. Exactly one author expected |
 | 304 | The selected author was not found in authors.yml. Make sure author exists and is spelled correctly in the blogpost |
 | 305 | Blogpost title is missing. Provide a title |
-| 306 | 'Layout'does not contain 'post, post-xml'. Make sure to use 'layout: [post, post-xml]' |
+| 306 | 'Layout' does not contain 'post, post-xml'. Make sure to use 'layout: [post, post-xml]' |
 | 307 | Date format error. Adapt to accepted pattern YYYY-MM-DD HH:mm |
 | 310 | Author first name is missing. Provide a first name |
 | 311 | Author last name is missing. Provide a last name |
