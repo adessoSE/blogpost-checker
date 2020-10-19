@@ -144,13 +144,13 @@ A post's metadata and the author value can be passed as arguments.
 The method structure might look like this:
 
 ```java
- private void checkMyCustomCondition(PostMetadata metadata, String authors) {
-        if (<your check condition>) {
-            LOGGER.info("<your check was susccessful>");
-        } else {
-            ExitBlogpostChecker.exit(LOGGER, "<your check failed due to your condition not being met>", <your custom error code>);
-        }
-  }
+private void checkMyCustomCondition(PostMetadata metadata, String authors) {
+    if ( < your check condition > ) {
+        LOGGER.info("<your check was susccessful>");
+    } else {
+        ExitBlogpostChecker.exit(LOGGER, "<your check failed due to your condition not being met>", < your custom error code > );
+    }
+}
 ```
 
 # Error codes
