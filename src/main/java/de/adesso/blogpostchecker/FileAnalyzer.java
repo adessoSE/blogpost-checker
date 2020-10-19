@@ -23,6 +23,7 @@ import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -114,16 +115,18 @@ public class FileAnalyzer {
     }
 
     private Ref getBranchByName() throws GitAPIException {
-        Ref branch = localGitInstance.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()
-                .stream().filter(ref -> extractBranchName(ref).equals(configService.getREPOSITORY_BRANCH_NAME()))
-                .findFirst().orElse(null);
+        Ref branch = getBranchWithMode(ListBranchCommand.ListMode.REMOTE).orElse(null);
 
         if (branch == null) {
-            branch = localGitInstance.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()
-                    .stream().filter(ref -> extractBranchName(ref).equals(configService.getREPOSITORY_BRANCH_NAME()))
-                    .findFirst().orElse(null);
+            branch = getBranchWithMode(ListBranchCommand.ListMode.ALL).orElse(null);
         }
         return branch;
+    }
+
+    private Optional<Ref> getBranchWithMode(ListBranchCommand.ListMode mode) throws GitAPIException {
+        return localGitInstance.branchList().setListMode(mode).call()
+                .stream().filter(ref -> extractBranchName(ref).equals(configService.getREPOSITORY_BRANCH_NAME()))
+                .findFirst();
     }
 
     private DiffEntry extractNewPostFromCommitDifference(RevCommit firstCommit, RevCommit secondCommit) throws IOException {
