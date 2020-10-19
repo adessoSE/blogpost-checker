@@ -7,7 +7,6 @@ public class AuthorTest extends BaseTest {
 
     @Test
     public void extractMetadataFromStringUsingRegexShouldPass() {
-        System.out.println(fileAnalyzer);
         String headerString = "\nauthor: TestAuthor\n";
         PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
         Assertions.assertThat(postHeader.getAuthor().equals("TestAuthor"));

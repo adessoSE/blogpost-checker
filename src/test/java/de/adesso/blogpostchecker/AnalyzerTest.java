@@ -1,6 +1,9 @@
 package de.adesso.blogpostchecker;
 
 import org.assertj.core.api.Assertions;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -8,13 +11,23 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AnalyzerTest extends BaseTest {
 
     @BeforeAll
     public void setup() {
-        repoCloner.cloneRemoteRepo();
+        try {
+            Repository repository = new FileRepositoryBuilder()
+                    .setGitDir(new File(configService.getREPOSITORY_REMOTE_URL().substring(6)))
+                    .readEnvironment()
+                    .findGitDir()
+                    .build();
+            LocalRepoCreater.setLocalGit(new Git(repository));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @AfterAll
