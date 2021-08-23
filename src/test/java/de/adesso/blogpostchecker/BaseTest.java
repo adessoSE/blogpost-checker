@@ -12,7 +12,7 @@ public class BaseTest {
 
     static {
         System.setProperty("REPOSITORY_REMOTE_URL", BaseTest.class.getClassLoader().getResource("devblog.git").toString());
-        System.setProperty("REPOSITORY_BRANCH_NAME", "second-post");
+        System.setProperty("REPOSITORY_BRANCH_NAME", "blogpost-checker-test");
     }
 
     @Autowired

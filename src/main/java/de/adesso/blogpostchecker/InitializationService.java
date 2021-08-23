@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.text.MessageFormat;
+import java.util.List;
 
 @Service
 @Profile("!test")
@@ -43,10 +44,10 @@ public class InitializationService {
 			// Step 2: Clone repo
 			repoCloner.cloneRemoteRepo();
 			PostMetadata header = fileAnalyzer.getMetadata();
-			Author author = fileAnalyzer.getAuthor();
+			List<Author> authors = fileAnalyzer.getAuthors();
 
 			// Step 3: Execute checks
-			checkExecutor.executeChecks(header, author);
+			checkExecutor.executeChecks(header, authors);
 		} catch(Exception e) {
 			ExitBlogpostChecker.exit(LOGGER, MessageFormat.format("UNDEFINED EXCEPTION {0}", e.getMessage()), 1);
 		}

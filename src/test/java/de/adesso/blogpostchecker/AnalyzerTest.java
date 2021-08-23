@@ -12,6 +12,7 @@ import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AnalyzerTest extends BaseTest {
@@ -58,6 +59,6 @@ public class AnalyzerTest extends BaseTest {
         author.setGithub("https://github.com/dariobraun");
         author.setGithubUsername("dariobraun");
         author.setLastName("Braun");
-        Assertions.assertThat(fileAnalyzer.getAuthor().equals(author));
+        Assertions.assertThat(fileAnalyzer.getAuthors().equals(List.of(author)));
     }
 }

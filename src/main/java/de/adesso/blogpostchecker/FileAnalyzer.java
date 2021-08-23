@@ -20,10 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -40,7 +37,7 @@ public class FileAnalyzer {
 
     private boolean analyzed;
     private PostMetadata metadata;
-    private Author author;
+    private List<Author> authors;
     private Git localGitInstance;
 
     @Autowired
@@ -55,11 +52,11 @@ public class FileAnalyzer {
         return metadata;
     }
 
-    public Author getAuthor() {
+    public List<Author> getAuthors() {
         if (!analyzed) {
             analyzeBranch();
         }
-        return author;
+        return authors;
     }
 
     private void analyzeBranch() {
@@ -103,8 +100,8 @@ public class FileAnalyzer {
             String blogPostContent = new String(BlobUtils.getRawContent(localGitInstance.getRepository(), latestCommit.toObjectId(), blogPostPath));
             metadata = extractMetadataFromStringUsingRegex(blogPostContent.split("---")[1]);
 
-            author = getAuthor(latestCommit, metadata.getAuthor());
-            if (author == null) {
+            authors = getAuthors(latestCommit, metadata.getAuthor());
+            if (authors == null) {
                 ExitBlogpostChecker.exit(LOGGER, "Error during reading of authors.yml.", 21);
             }
 
@@ -160,7 +157,7 @@ public class FileAnalyzer {
         metadata.setLayout(extractAttributeValueFromMetadata(metadataString, "\\nlayout:\\s*\\[post, post-xml].*\\n", "\\[(.*?)]", 1));
         metadata.setTitle(extractAttributeValueFromMetadata(metadataString, "\\ntitle:\\s*\".*\".*\\n", "\"(.*?)\"", 1));
         metadata.setDate(extractAttributeValueFromMetadata(metadataString, "\\ndate:\\s*\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}.*\\n", "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}", 0));
-        metadata.setAuthor(extractAttributeValueFromMetadata(metadataString, "\\nauthor:\\s*\\w+.*\\n", "(\\w+:\\s*)(\\w+)", 2));
+        metadata.setAuthor(extractAttributeValueFromMetadata(metadataString, "\\nauthor_ids:\\s*\\[.*].*\\n", "\\[(.*)]", 1));
         metadata.setCategories(extractAttributeValueFromMetadata(metadataString, "\\ncategories:\\s*\\[.*].*\\n", "\\[(.*)]", 1));
         metadata.setTags(extractAttributeValueFromMetadata(metadataString, "\\ntags:\\s*\\[.*].*\\n", "\\[(.*?)]", 1));
 
@@ -184,7 +181,7 @@ public class FileAnalyzer {
         return branchName[branchName.length - 1];
     }
 
-    private Author getAuthor(RevCommit commit, String authorName) {
+    private List<Author> getAuthors(RevCommit commit, String authorName) {
         Git localGit = LocalRepoCreater.getLocalGit();
         Repository localRepo = localGit.getRepository();
 
@@ -201,28 +198,30 @@ public class FileAnalyzer {
         return null;
     }
 
-    private Author getAuthorFromYml(String authorYml, String authorName) {
+    private List<Author> getAuthorFromYml(String authorYml, String authorIdsString) {
         Yaml yaml = new Yaml();
         Map<String, LinkedHashMap<String, String>> obj = yaml.load(authorYml);
-        if (obj.containsKey(authorName)) {
-            Author author = new Author();
-            Map<String, String> authorMap = obj.get(authorName);
 
-            author.setAuthorNickname(authorName);
-            author.setFirstName(authorMap.get("first_name"));
-            author.setLastName(authorMap.get("last_name"));
-            author.setGithubUsername(authorMap.get("github_username"));
-            author.setEmail(authorMap.get("email"));
-            author.setBio(authorMap.get("bio"));
-            author.setAvatarUrl(authorMap.get("avatar_url"));
-            author.setGithub(authorMap.get("github"));
+        return Arrays.stream(authorIdsString.split(",\\s")).map(authorName -> {
+            if (obj.containsKey(authorName)) {
+                Author author = new Author();
+                Map<String, String> authorMap = obj.get(authorName);
 
-            return author;
-        } else {
-            ExitBlogpostChecker.exit(LOGGER, MessageFormat.format("The specified author with name \"{0}\" is not listed in authors.yml.",
-                    authorName), 26);
-        }
-        return null;
+                author.setAuthorNickname(authorName);
+                author.setFirstName(authorMap.get("first_name"));
+                author.setLastName(authorMap.get("last_name"));
+                author.setGithubUsername(authorMap.get("github_username"));
+                author.setEmail(authorMap.get("email"));
+                author.setBio(authorMap.get("bio"));
+                author.setAvatarUrl(authorMap.get("avatar_url"));
+                author.setGithub(authorMap.get("github"));
+                return author;
+            } else {
+                ExitBlogpostChecker.exit(LOGGER, MessageFormat.format("The specified author with name \"{0}\" is not listed in authors.yml.",
+                        authorIdsString), 26);
+            }
+            return null;
+        }).collect(Collectors.toList());
     }
 
     private boolean commitsFound(RevCommit commit1, RevCommit commit2) {

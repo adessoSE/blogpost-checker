@@ -4,12 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CheckExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CheckExecutor.class);
 
-    public void executeChecks(PostMetadata postMetadata, Author author) {
+    public void executeChecks(PostMetadata postMetadata, List<Author> authors) {
         checkPostCategoryNotEmpty(postMetadata);
         checkPostCategoryOnlyOneEntry(postMetadata);
         checkPostTagsNotEmpty(postMetadata);
@@ -18,14 +20,16 @@ public class CheckExecutor {
         checkPostLayoutCorrect(postMetadata);
         checkPostDateMatchesFormat(postMetadata);
 
-        checkAuthorFirstNameNotEmpty(author);
-        checkAuthorLastNameNotEmpty(author);
-        checkAuthorGithubUsernameNotEmpty(author);
-        checkAuthorEmailNotEmpty(author);
-        checkAuthorEmailCorrectFormat(author);
-        checkAuthorBioNotEmpty(author);
-        checkAuthorAvatarUrlNotEmpty(author);
-        checkAuthorGithubNotEmpty(author);
+        authors.forEach(author -> {
+            checkAuthorFirstNameNotEmpty(author);
+            checkAuthorLastNameNotEmpty(author);
+            checkAuthorGithubUsernameNotEmpty(author);
+            checkAuthorEmailNotEmpty(author);
+            checkAuthorEmailCorrectFormat(author);
+            checkAuthorBioNotEmpty(author);
+            checkAuthorAvatarUrlNotEmpty(author);
+            checkAuthorGithubNotEmpty(author);
+        });
     }
 
     private void checkPostCategoryNotEmpty(PostMetadata metadata) {
@@ -88,7 +92,7 @@ public class CheckExecutor {
         if (checkAttribute(author.getFirstName())) {
             LOGGER.info("Author first name checked, value: \"{}\"", author.getFirstName());
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "Author first name is missing. Provide a first name.", 310);
+            ExitBlogpostChecker.exit(LOGGER, "Author first name is missing for author " + author.getAuthorNickname() + ". Provide a first name.", 310);
         }
     }
 
@@ -96,7 +100,7 @@ public class CheckExecutor {
         if (checkAttribute(author.getLastName())) {
             LOGGER.info("Author last name checked, value: \"{}\"", author.getLastName());
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "Author last name is missing. Provide a last name.", 311);
+            ExitBlogpostChecker.exit(LOGGER, "Author last name is missing for author " + author.getAuthorNickname() + ". Provide a last name.", 311);
         }
     }
 
@@ -104,7 +108,7 @@ public class CheckExecutor {
         if (checkAttribute(author.getGithubUsername())) {
             LOGGER.info("Author github username checked, value: \"{}\"", author.getGithubUsername());
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "Author github username is missing. Provide a github username.", 312);
+            ExitBlogpostChecker.exit(LOGGER, "Author github username is missing for author " + author.getAuthorNickname() + ". Provide a github username.", 312);
         }
     }
 
@@ -112,7 +116,7 @@ public class CheckExecutor {
         if (checkAttribute(author.getEmail())) {
             LOGGER.info("Author email checked, value: \"{}\"", author.getEmail());
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "Author email is missing. Provide a email.", 313);
+            ExitBlogpostChecker.exit(LOGGER, "Author email is missing for author " + author.getAuthorNickname() + ". Provide a email.", 313);
         }
     }
 
@@ -129,7 +133,7 @@ public class CheckExecutor {
             LOGGER.info("Author bio checked, value: \"{}\"", author.getBio());
 
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "Author bio is missing. Provide a bio.", 315);
+            ExitBlogpostChecker.exit(LOGGER, "Author bio is missing for author " + author.getAuthorNickname() + ". Provide a bio.", 315);
         }
     }
 
@@ -138,7 +142,7 @@ public class CheckExecutor {
             LOGGER.info("Author avatar url checked, value: \"{}\"", author.getAvatarUrl());
 
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "Author avatar url is missing. Provide an avatar url.", 316);
+            ExitBlogpostChecker.exit(LOGGER, "Author avatar url is missing for author " + author.getAuthorNickname() + ". Provide an avatar url.", 316);
         }
     }
 
@@ -146,7 +150,7 @@ public class CheckExecutor {
         if (checkAttribute(author.getGithub())) {
             LOGGER.info("Author github checked, value: \"{}\"", author.getGithub());
         } else {
-            ExitBlogpostChecker.exit(LOGGER, "Author github is missing. Provide a github link.", 317);
+            ExitBlogpostChecker.exit(LOGGER, "Author github is missing for author " + author.getAuthorNickname() + ". Provide a github link.", 317);
         }
     }
 

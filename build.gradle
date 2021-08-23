@@ -28,6 +28,8 @@ dependencies {
 	compile('org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r')
 	compile "io.fabric8:gitective-core:0.9.10"
 	compile 'org.yaml:snakeyaml:1.21'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
 
