@@ -22,8 +22,8 @@ public class InitializationService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
 	@Autowired
-	public InitializationService(GitRepoCloner gitRepoCloner, ConfigService configService, CheckExecutor checkExecutor, FileAnalyzer fileAnalyzer){
-		this.repoGetter = gitRepoCloner;
+	public InitializationService(GitRepoGetter gitRepoGetter, ConfigService configService, CheckExecutor checkExecutor, FileAnalyzer fileAnalyzer){
+		this.repoGetter = gitRepoGetter;
 		this.configService = configService;
 		this.checkExecutor = checkExecutor;
 		this.fileAnalyzer = fileAnalyzer;
