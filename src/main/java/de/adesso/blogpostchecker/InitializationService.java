@@ -42,7 +42,7 @@ public class InitializationService {
 			configService.checkConfiguration();
 
 			// Step 2: Clone repo
-			repoCloner.cloneRemoteRepo();
+			repoCloner.setRepo();
 			PostMetadata header = fileAnalyzer.getMetadata();
 			List<Author> authors = fileAnalyzer.getAuthors();
 
