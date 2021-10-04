@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "local"})
 public class BaseTest {
 
     static {
@@ -18,7 +18,7 @@ public class BaseTest {
     @Autowired
     protected FileAnalyzer fileAnalyzer;
     @Autowired
-    protected GitRepoCloner repoCloner;
+    protected GitRepoGetter repoCloner;
     @Autowired
     protected ConfigService configService;
 

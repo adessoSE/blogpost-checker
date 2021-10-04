@@ -164,6 +164,7 @@ Available error codes include:
 | 24 | Error accessing git api |
 | 25 | Error getting file content |
 | 26 | Error getting authors.yml content from git |
+| 27 | Error while opening git repository |
 | 300 | No category found. Exactly one category expected |
 | 301 | Two or more categories found. Exactly one category expected |
 | 302 | The tags are empty. One or more tags expected |

@@ -5,12 +5,14 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 
 @Service
-public class GitRepoCloner {
+@Profile("local")
+public class GitRepoCloner implements GitRepoGetter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitRepoCloner.class);
 
@@ -25,7 +27,7 @@ public class GitRepoCloner {
      * Clones the remote repository (defined in environment variables:
      * repository.remote.url) to the local file system (repository.local.path)
      */
-    public void cloneRemoteRepo() {
+    public void setRepo() {
         try {
             LOGGER.info("Start cloning repository...");
             LocalRepoCreater.setLocalGit(Git.cloneRepository()
@@ -33,8 +35,7 @@ public class GitRepoCloner {
                     .setDirectory(new File(configService.getLOCAL_REPO_PATH()))
                     .call());
             LOGGER.info("Repository cloned successfully.");
-        }
-        catch (GitAPIException e) {
+        } catch (GitAPIException e) {
             LOGGER.error(e.getMessage(), e);
             ExitBlogpostChecker.exit(LOGGER, "Error while cloning remote git repository: " + configService.getREPOSITORY_REMOTE_URL(), 20);
         }
