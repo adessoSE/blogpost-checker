@@ -16,7 +16,7 @@ public class ConfigService {
     @Value("#{environment.REPOSITORY_BRANCH_NAME ?: null}")
     private String REPOSITORY_BRANCH_NAME;
 
-    @Value("${repository.local.path}")
+    @Value("#{environment.LOCAL_REPO_PATH ?: '${repository.local.path}'}")
     private String LOCAL_REPO_PATH;
 
     public void checkConfiguration() {
