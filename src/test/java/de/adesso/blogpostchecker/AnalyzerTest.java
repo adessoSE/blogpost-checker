@@ -2,8 +2,7 @@ package de.adesso.blogpostchecker;
 
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -20,20 +18,28 @@ public class AnalyzerTest extends BaseTest {
     @BeforeAll
     public void setup() {
         try {
-            Repository repository = new FileRepositoryBuilder()
-                    .setGitDir(new File(configService.getREPOSITORY_REMOTE_URL().substring(6)))
-                    .readEnvironment()
-                    .findGitDir()
-                    .build();
-            LocalRepoCreater.setLocalGit(new Git(repository));
-        } catch (IOException e) {
+            LocalRepoCreator.setLocalGit(Git.cloneRepository()
+                    .setDirectory(new File("src/test/resources/devblog"))
+                    .setURI("https://github.com/jo2/devblog")
+                    .call());
+        } catch (GitAPIException e) {
             e.printStackTrace();
         }
     }
 
     @AfterAll
-    public void cleanUp() {
-        FileSystemUtils.deleteRecursively(new File(configService.getLOCAL_REPO_PATH()));
+    public void tearDown() {
+        deleteFiles(new File("src/test/resources/"));
+    }
+
+    private void deleteFiles(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteFiles(file);
+            }
+        }
+        directoryToBeDeleted.delete();
     }
 
     @Test

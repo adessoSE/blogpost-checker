@@ -158,6 +158,11 @@ Available error codes include:
 
 | Error code | Message |
 | ---------- | ------- |
+| 10 | Error: REPOSITORY_REMOTE_URL not configured |
+| 11 | Error: REPOSITORY_BRANCH_NAME not configured |
+| 12 | Error: HEAD_COMMIT not configured |
+| 13 | Error: BASE_COMMIT not configured |
+| 14 | Error: LOCAL_REPO_PATH not configured |
 | 20 | Error while cloning remote git repository |
 | 21 | Error reading authors.yml |
 | 23 | Error getting git branch |

@@ -14,7 +14,7 @@ import java.util.List;
 @Profile("!test")
 public class InitializationService {
 
-	private final GitRepoGetter repoGetter;
+	private final GitRepoOpener gitRepoOpener;
 	private final ConfigService configService;
 	private final CheckExecutor checkExecutor;
 	private final FileAnalyzer fileAnalyzer;
@@ -22,8 +22,8 @@ public class InitializationService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
 	@Autowired
-	public InitializationService(GitRepoGetter gitRepoGetter, ConfigService configService, CheckExecutor checkExecutor, FileAnalyzer fileAnalyzer){
-		this.repoGetter = gitRepoGetter;
+	public InitializationService(GitRepoOpener gitRepoOpener, ConfigService configService, CheckExecutor checkExecutor, FileAnalyzer fileAnalyzer){
+		this.gitRepoOpener = gitRepoOpener;
 		this.configService = configService;
 		this.checkExecutor = checkExecutor;
 		this.fileAnalyzer = fileAnalyzer;
@@ -42,7 +42,7 @@ public class InitializationService {
 			configService.checkConfiguration();
 
 			// Step 2: Clone repo
-			repoGetter.setRepo();
+			gitRepoOpener.setRepo();
 			PostMetadata header = fileAnalyzer.getMetadata();
 			List<Author> authors = fileAnalyzer.getAuthors();
 

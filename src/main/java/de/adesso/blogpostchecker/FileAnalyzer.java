@@ -1,8 +1,6 @@
 package de.adesso.blogpostchecker;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ListBranchCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.*;
@@ -24,14 +22,11 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class FileAnalyzer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileAnalyzer.class);
-    private static final String ADD_POST_COMMIT_MESSAGE_PATTERN =
-            "^ADD\\sassets\\/first-spirit-xml\\/\\d{4}-\\d{2}-\\d{2}\\/\\d{4}-\\d{2}-\\d{2}.*\\.xml$";
 
     private final ConfigService configService;
 
@@ -61,36 +56,21 @@ public class FileAnalyzer {
 
     private void analyzeBranch() {
         try {
-            localGitInstance = LocalRepoCreater.getLocalGit();
-            Ref localBranch = getBranchByName();
+            localGitInstance = LocalRepoCreator.getLocalGit();
+            RevCommit currentHead = localGitInstance.getRepository()
+                    .parseCommit(ObjectId.fromString(configService.getHEAD_COMMIT()));
+            RevCommit baseCommit = localGitInstance.getRepository()
+                    .parseCommit(ObjectId.fromString(configService.getBASE_COMMIT()));
 
-            if (localBranch != null) {
-                List<RevCommit> commits = getCommitsInBranch(localBranch);
+            LOGGER.info("Analysing commit {}: {} by {}", currentHead.getName(), currentHead.getShortMessage(),
+                    currentHead.getAuthorIdent().getEmailAddress());
 
-                RevCommit currentHead = commits.get(0);
-                // a commit that was definitely there before the branch of this pull request was created.
-                // this commit is used to have a base to compare the currentHead against.
-                RevCommit baseCommit = commits.stream().filter(commit -> commit.getShortMessage().matches(ADD_POST_COMMIT_MESSAGE_PATTERN))
-                        .findFirst().orElse(null);
-                LOGGER.info("Analysing commit {}: {} by {}", currentHead.getName(), currentHead.getShortMessage(),
-                        currentHead.getAuthorIdent().getEmailAddress());
-                DiffEntry markdownPost = extractNewPostFromCommitDifference(currentHead, baseCommit);
-                extractMetadataFromFiles(currentHead, markdownPost);
-                localGitInstance.close();
-            } else {
-                ExitBlogpostChecker.exit(LOGGER, "Error on getting branch from git.", 23);
-            }
-        } catch (GitAPIException e) {
-            ExitBlogpostChecker.exit(LOGGER, "Error on accessing git api.", 24);
+            DiffEntry markdownPost = extractNewPostFromCommitDifference(currentHead, baseCommit);
+            extractMetadataFromFiles(currentHead, markdownPost);
+            localGitInstance.close();
         } catch (IOException e) {
             ExitBlogpostChecker.exit(LOGGER, "Error on getting file content.", 25);
         }
-    }
-
-    private List<RevCommit> getCommitsInBranch(Ref branch) throws IOException, GitAPIException {
-        return StreamSupport
-                .stream(localGitInstance.log().add(localGitInstance.getRepository().resolve(branch.getName())).call().spliterator(), false)
-                .collect(Collectors.toList());
     }
 
     private void extractMetadataFromFiles(RevCommit latestCommit, DiffEntry blogPost) {
@@ -109,21 +89,6 @@ public class FileAnalyzer {
         } else {
             ExitBlogpostChecker.exitInfo(LOGGER, "Found no blog post to check.", 0);
         }
-    }
-
-    private Ref getBranchByName() throws GitAPIException {
-        Ref branch = getBranchWithMode(ListBranchCommand.ListMode.REMOTE).orElse(null);
-
-        if (branch == null) {
-            branch = getBranchWithMode(ListBranchCommand.ListMode.ALL).orElse(null);
-        }
-        return branch;
-    }
-
-    private Optional<Ref> getBranchWithMode(ListBranchCommand.ListMode mode) throws GitAPIException {
-        return localGitInstance.branchList().setListMode(mode).call()
-                .stream().filter(ref -> extractBranchName(ref).equals(configService.getREPOSITORY_BRANCH_NAME()))
-                .findFirst();
     }
 
     private DiffEntry extractNewPostFromCommitDifference(RevCommit firstCommit, RevCommit secondCommit) throws IOException {
@@ -176,13 +141,8 @@ public class FileAnalyzer {
         return null;
     }
 
-    private String extractBranchName(Ref ref) {
-        String[] branchName = ref.getName().split("/");
-        return branchName[branchName.length - 1];
-    }
-
     private List<Author> getAuthors(RevCommit commit, String authorName) {
-        Git localGit = LocalRepoCreater.getLocalGit();
+        Git localGit = LocalRepoCreator.getLocalGit();
         Repository localRepo = localGit.getRepository();
 
         try (TreeWalk treeWalk = TreeWalk.forPath(localGitInstance.getRepository(), "_data/authors.yml", commit.getTree());

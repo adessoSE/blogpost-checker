@@ -4,16 +4,13 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("remote")
-public class GitRepoOpener implements GitRepoGetter {
+public class GitRepoOpener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitRepoOpener.class);
 
@@ -31,11 +28,11 @@ public class GitRepoOpener implements GitRepoGetter {
     public void setRepo() {
         try {
             LOGGER.info("Start opening repository...");
-            LocalRepoCreater.setLocalGit(Git.open(new File(configService.getLOCAL_REPO_PATH())));
+            LocalRepoCreator.setLocalGit(Git.open(new File(configService.getLOCAL_REPO_PATH())));
             LOGGER.info("Repository opened successfully.");
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
-            ExitBlogpostChecker.exit(LOGGER, "Error while opening git repository: " + configService.getREPOSITORY_REMOTE_URL(), 27);
+            ExitBlogpostChecker.exit(LOGGER, "Error while opening git repository: " + configService.getLOCAL_REPO_PATH(), 27);
         }
     }
 }

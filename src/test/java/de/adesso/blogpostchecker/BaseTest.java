@@ -7,18 +7,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles({"test", "local"})
+@ActiveProfiles({"test"})
 public class BaseTest {
 
     static {
-        System.setProperty("REPOSITORY_REMOTE_URL", BaseTest.class.getClassLoader().getResource("devblog.git").toString());
-        System.setProperty("REPOSITORY_BRANCH_NAME", "blogpost-checker-test");
+        System.setProperty("HEAD_COMMIT", "61d141398ac10982f0904da8e1d5629c5b859765");
+        System.setProperty("BASE_COMMIT", "b6983b887ff737cfeb00fe1dd311968183477d2d");
+        System.setProperty("LOCAL_REPO_PATH", "src/test/resources/devblog");
     }
 
     @Autowired
     protected FileAnalyzer fileAnalyzer;
     @Autowired
-    protected GitRepoGetter repoCloner;
+    protected GitRepoOpener repoOpener;
     @Autowired
     protected ConfigService configService;
 

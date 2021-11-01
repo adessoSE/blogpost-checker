@@ -10,47 +10,60 @@ public class ConfigService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigService.class);
 
-    @Value("#{environment.REPOSITORY_REMOTE_URL ?: null}")
-    private String REPOSITORY_REMOTE_URL;
+    @Value("#{environment.BASE_COMMIT ?: null}")
+    private String BASE_COMMIT;
 
-    @Value("#{environment.REPOSITORY_BRANCH_NAME ?: null}")
-    private String REPOSITORY_BRANCH_NAME;
+    @Value("#{environment.HEAD_COMMIT ?: null}")
+    private String HEAD_COMMIT;
 
     @Value("#{environment.LOCAL_REPO_PATH ?: '${repository.local.path}'}")
     private String LOCAL_REPO_PATH;
 
     public void checkConfiguration() {
-        checkRemoteRepoUrl();
-        checkRepositoryBranchName();
+        checkHeadCommit();
+        checkBaseCommit();
+        checkLocalRepoPath();
     }
 
-    public String getREPOSITORY_BRANCH_NAME() {
-        return REPOSITORY_BRANCH_NAME;
+    public String getBASE_COMMIT() {
+        return BASE_COMMIT;
     }
 
-    public String getREPOSITORY_REMOTE_URL() {
-        return REPOSITORY_REMOTE_URL;
+    public String getHEAD_COMMIT() {
+        return HEAD_COMMIT;
     }
 
     public String getLOCAL_REPO_PATH() {
         return LOCAL_REPO_PATH;
     }
 
-    private void checkRemoteRepoUrl() {
-        if (REPOSITORY_REMOTE_URL == null) {
-            logAndExitVariableNotFound("REPOSITORY_REMOTE_URL",
-                    "Please provide a repository url in the format of: https://github.com/<name-of-my-account>/devblog.",
-                    10);
+    private void checkHeadCommit() {
+        if (HEAD_COMMIT == null) {
+            logAndExitVariableNotFound("HEAD_COMMIT",
+                    "Please provide the current commit in the branch you want to merge.",
+                    12);
         } else {
-            LOGGER.info("Environment variable provided: REPOSITORY_REMOTE_URL");
+            LOGGER.info("Environment variable provided: HEAD_COMMIT");
         }
     }
 
-    private void checkRepositoryBranchName() {
-        if (REPOSITORY_BRANCH_NAME == null) {
-            logAndExitVariableNotFound("REPOSITORY_BRANCH_NAME", "Please provide the branch you want to check.", 11);
+    private void checkBaseCommit() {
+        if (BASE_COMMIT == null) {
+            logAndExitVariableNotFound("BASE_COMMIT",
+                    "Please provide the commit you want to merge into.",
+                    13);
         } else {
-            LOGGER.info("Environment variable provided: REPOSITORY_BRANCH_NAME");
+            LOGGER.info("Environment variable provided: BASE_COMMIT");
+        }
+    }
+
+    private void checkLocalRepoPath() {
+        if (LOCAL_REPO_PATH == null) {
+            logAndExitVariableNotFound("LOCAL_REPO_PATH",
+                    "Please provide the path to your local repository.",
+                    14);
+        } else {
+            LOGGER.info("Environment variable provided: LOCAL_REPO_PATH");
         }
     }
 
