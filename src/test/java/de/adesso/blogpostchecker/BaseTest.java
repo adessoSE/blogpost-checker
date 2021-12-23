@@ -11,8 +11,8 @@ import org.springframework.test.context.ActiveProfiles;
 public class BaseTest {
 
     static {
-        System.setProperty("HEAD_COMMIT", "61d141398ac10982f0904da8e1d5629c5b859765");
-        System.setProperty("BASE_COMMIT", "b6983b887ff737cfeb00fe1dd311968183477d2d");
+        System.setProperty("HEAD_COMMIT", "7d5d8694587a3ace2649fbc4346618f9ac93df7e");
+        System.setProperty("BASE_COMMIT", "ead420a5ae7442b03dbfe1d181020f2d56b21e19");
         System.setProperty("LOCAL_REPO_PATH", "src/test/resources/devblog");
     }
 

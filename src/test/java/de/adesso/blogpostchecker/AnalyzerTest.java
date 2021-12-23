@@ -18,8 +18,13 @@ public class AnalyzerTest extends BaseTest {
     @BeforeAll
     public void setup() {
         try {
+            File dir = new File("src/test/resources/devblog");
+            if (dir.exists()) {
+                deleteFiles(dir);
+            }
+
             LocalRepoCreator.setLocalGit(Git.cloneRepository()
-                    .setDirectory(new File("src/test/resources/devblog"))
+                    .setDirectory(dir)
                     .setURI("https://github.com/jo2/devblog")
                     .call());
         } catch (GitAPIException e) {

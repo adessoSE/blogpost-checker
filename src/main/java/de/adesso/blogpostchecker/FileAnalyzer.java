@@ -3,6 +3,8 @@ package de.adesso.blogpostchecker;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -69,7 +71,7 @@ public class FileAnalyzer {
             extractMetadataFromFiles(currentHead, markdownPost);
             localGitInstance.close();
         } catch (IOException e) {
-            ExitBlogpostChecker.exit(LOGGER, "Error on getting file content.", 25);
+            ExitBlogpostChecker.exit(LOGGER, "Error on getting file content: " + e.getMessage(), 25);
         }
     }
 
