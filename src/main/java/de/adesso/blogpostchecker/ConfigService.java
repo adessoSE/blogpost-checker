@@ -22,6 +22,12 @@ public class ConfigService {
     @Value("#{environment.PR_NUMBER ?: '0'}")
     private String PR_NUMBER;
 
+    @Value("#{environment.USERNAME ?: 'jekyll2cms'}")
+    private String USERNAME;
+
+    @Value("#{environment.TOKEN ?: 'TOKEN'}")
+    private String TOKEN;
+
     public void checkConfiguration() {
         checkHeadCommit();
         checkBaseCommit();
@@ -42,6 +48,14 @@ public class ConfigService {
 
     public String getPR_NUMBER() {
         return PR_NUMBER;
+    }
+
+    public String getUSERNAME() {
+        return USERNAME;
+    }
+
+    public String getTOKEN() {
+        return TOKEN;
     }
 
     private void checkHeadCommit() {
@@ -75,12 +89,32 @@ public class ConfigService {
     }
 
     private void checkPrNumber() {
-        if (LOCAL_REPO_PATH == null) {
+        if (PR_NUMBER == null) {
             logAndExitVariableNotFound("PR_NUMBER",
                     "Please provide the PR number.",
                     15);
         } else {
             LOGGER.info("Environment variable provided: PR_NUMBER");
+        }
+    }
+
+    private void checkUsername() {
+        if (USERNAME == null) {
+            logAndExitVariableNotFound("USERNAME",
+                    "Please provide the username.",
+                    15);
+        } else {
+            LOGGER.info("Environment variable provided: USERNAME");
+        }
+    }
+
+    private void checkToken() {
+        if (TOKEN == null) {
+            logAndExitVariableNotFound("TOKEN",
+                    "Please provide the user token.",
+                    15);
+        } else {
+            LOGGER.info("Environment variable provided: TOKEN");
         }
     }
 

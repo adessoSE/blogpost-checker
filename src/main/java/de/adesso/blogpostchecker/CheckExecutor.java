@@ -1,15 +1,18 @@
 package de.adesso.blogpostchecker;
 
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +58,14 @@ public class CheckExecutor {
 
             LOGGER.info("There were errors in the blog post:\n{}", message);
 
-            String url = "https://api.github.com/repos/adessoAG/devblog/issues/" + configService.getPR_NUMBER() + "/comments";
-            ResponseEntity response = new RestTemplate().exchange(RequestEntity.post(URI.create(url)).body(message), Object.class);
+            HttpHeaders headers = createHeaders(configService.getUSERNAME(), configService.getTOKEN());
+            headers.add("Accept", "application/vnd.github.v3+json");
+
+            ResponseEntity<Object> response = new RestTemplate().exchange(
+                    "https://api.github.com/repos/adessoAG/devblog/issues/" + configService.getPR_NUMBER() + "/comments",
+                    HttpMethod.POST,
+                    new HttpEntity<>(message, headers),
+                    Object.class);
             if (HttpStatus.CREATED.equals(response.getStatusCode())) {
                 LOGGER.info("Successfully posted errors as PR comment.");
             } else {
@@ -196,5 +205,15 @@ public class CheckExecutor {
 
     private boolean emailMatchesEmailPattern(Author author) {
         return author.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
+    }
+
+    private HttpHeaders createHeaders(String username, String password){
+        return new HttpHeaders() {{
+            String auth = username + ":" + password;
+            byte[] encodedAuth = Base64.encodeBase64(
+                    auth.getBytes(Charset.forName("US-ASCII")) );
+            String authHeader = "Basic " + new String( encodedAuth );
+            set( "Authorization", authHeader );
+        }};
     }
 }
