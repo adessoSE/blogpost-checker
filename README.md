@@ -19,7 +19,7 @@ layout: [post, post-xml]
 title:  "Title"
 date:   YYYY-MM-DD HH:MM      
 modified_date: YYYY-MM-DD HH:MM
-author: authorNickname
+author_ids: [authorNickname]
 categories: [a single category]
 tags: [tag 1, tag2, tag 3]
 ---
@@ -31,8 +31,8 @@ These checks are currently executed for the post metadata:
 * `categories` must be placed in brackets (`[ ]`)
 * `tags` cannot be empty
 * `tags` must be placed in brackets (`[ ]`)
-* `author` cannot be empty
-* `author` the name must be listed in the authors.yml file
+* `author_ids` cannot be empty
+* `author_ids` the names must be listed in the authors.yml file
 * `title` cannot be empty
 * `title` has to be placed in quotes
 * `layout` must equal [post, post-xml]
@@ -91,13 +91,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
-        
-      - name: Pull Docker image
-        run: docker pull jekyll2cms/blogpost-checker:1.0.0
+      - name: Inject env
+        uses: rlespinasse/github-slug-action@v3.x
+
+      - uses: actions/checkout@v2
+
+      - name: git log
+        run: |
+          MESSAGE=`cd /home/runner/work/devblog/devblog && git log --pretty=oneline`
+          echo "$MESSAGE"
+          HEAD_COMMIT=`echo "$MESSAGE" | sed -e 's/\(.*\)Merge\s\(.*\) into \(.*\)/\2/'`
+          BASE_COMMIT=`echo "$MESSAGE" | sed -e 's/\(.*\)Merge\s\(.*\) into \(.*\)/\3/'`
+          export HEAD_COMMIT="$HEAD_COMMIT"
+          export BASE_COMMIT="$BASE_COMMIT"
+          echo "::set-env name=HEAD_COMMIT::$HEAD_COMMIT"
+          echo "::set-env name=BASE_COMMIT::$BASE_COMMIT"
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+      - uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.pull_request.user.login }}/${{ env.GITHUB_REPOSITORY_NAME_PART }}
+          ref: ${{ env.HEAD_COMMIT }}
+          fetch-depth: 0
 
       - name: Run Docker image
-        run: docker run --env REPOSITORY_REMOTE_URL='${{ secrets.REPOSITORY_REMOTE_URL }}' --env REPOSITORY_BRANCH_NAME='${{ github.head_ref }}' jekyll2cms/blogpost-checker:1.0.0
+        run: docker run --env BASE_COMMIT='${{ env.BASE_COMMIT }}' --env HEAD_COMMIT='${{ env.HEAD_COMMIT }}' --env LOCAL_REPO_PATH=repo --env PR_NUMBER='${{ github.event.number  }}' -v /home/runner/work/devblog/devblog:/repo jekyll2cms/blogpost-checker:1.0.5
 ```
 
 In the case of the adesso devblog, we want every pull request to be checked and thus set `REPOSITORY_BRANCH_NAME` dynamically to the current branch.
@@ -156,33 +175,35 @@ private void checkMyCustomCondition(PostMetadata metadata, String authors) {
 # Error codes
 Available error codes include:
 
-| Error code | Message |
-| ---------- | ------- |
-| 10 | Error: REPOSITORY_REMOTE_URL not configured |
-| 11 | Error: REPOSITORY_BRANCH_NAME not configured |
-| 12 | Error: HEAD_COMMIT not configured |
-| 13 | Error: BASE_COMMIT not configured |
-| 14 | Error: LOCAL_REPO_PATH not configured |
-| 20 | Error while cloning remote git repository |
-| 21 | Error reading authors.yml |
-| 23 | Error getting git branch |
-| 24 | Error accessing git api |
-| 25 | Error getting file content |
-| 26 | Error getting authors.yml content from git |
-| 27 | Error while opening git repository |
-| 300 | No category found. Exactly one category expected |
-| 301 | Two or more categories found. Exactly one category expected |
-| 302 | The tags are empty. One or more tags expected |
-| 303 | No author found. Exactly one author expected |
-| 304 | The selected author was not found in authors.yml. Make sure author exists and is spelled correctly in the blogpost |
-| 305 | Blogpost title is missing. Provide a title |
-| 306 | 'Layout' does not contain 'post, post-xml'. Make sure to use 'layout: [post, post-xml]' |
-| 307 | Date format error. Adapt to accepted pattern YYYY-MM-DD HH:mm |
-| 310 | Author first name is missing. Provide a first name |
-| 311 | Author last name is missing. Provide a last name |
-| 312 | Author github username is missing. Provide a github username |
-| 313 | Author email is missing. Provide a email |
-| 314 | Email format error. Adapt to accepted pattern ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$ |
-| 315 | Author bio is missing. Provide a bio |
-| 316 | Author avatar url is missing. Provide an avatar url |
-| 317 | Author github is missing. Provide a github link |
+| Error code | Message                                                                                                                                   |
+|------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| 10         | Error: REPOSITORY_REMOTE_URL not configured                                                                                               |
+| 11         | Error: REPOSITORY_BRANCH_NAME not configured                                                                                              |
+| 12         | Error: HEAD_COMMIT not configured                                                                                                         |
+| 13         | Error: BASE_COMMIT not configured                                                                                                         |
+| 14         | Error: LOCAL_REPO_PATH not configured                                                                                                     |
+| 20         | Error while cloning remote git repository                                                                                                 |
+| 21         | Error reading authors.yml                                                                                                                 |
+| 23         | Error getting git branch                                                                                                                  |
+| 24         | Error accessing git api                                                                                                                   |
+| 25         | Error getting file content                                                                                                                |
+| 26         | Error getting authors.yml content from git                                                                                                |
+| 27         | Error while opening git repository                                                                                                        |
+| 300        | No category found. Exactly one category expected. Deprecated with 1.0.5                                                                   |
+| 301        | Two or more categories found. Exactly one category expected. Deprecated with 1.0.5                                                        |
+| 302        | The tags are empty. One or more tags expected. Deprecated with 1.0.5                                                                      |
+| 303        | No author found. Exactly one author expected. Deprecated with 1.0.5                                                                       |
+| 304        | The selected author was not found in authors.yml. Make sure author exists and is spelled correctly in the blogpost. Deprecated with 1.0.5 |
+| 305        | Blogpost title is missing. Provide a title. Deprecated with 1.0.5                                                                         |
+| 306        | 'Layout' does not contain 'post, post-xml'. Make sure to use 'layout: [post, post-xml]'. Deprecated with 1.0.5                            |
+| 307        | Date format error. Adapt to accepted pattern YYYY-MM-DD HH:mm. Deprecated with 1.0.5                                                      |
+| 310        | Author first name is missing. Provide a first name. Deprecated with 1.0.5                                                                 |
+| 311        | Author last name is missing. Provide a last name. Deprecated with 1.0.5                                                                   |
+| 312        | Author github username is missing. Provide a github username. Deprecated with 1.0.5                                                       |
+| 313        | Author email is missing. Provide a email. Deprecated with 1.0.5                                                                           |
+| 314        | Email format error. Adapt to accepted pattern ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$. Deprecated with 1.0.5                    |
+| 315        | Author bio is missing. Provide a bio. Deprecated with 1.0.5                                                                               |
+| 316        | Author avatar url is missing. Provide an avatar url. Deprecated with 1.0.5                                                                |
+| 317        | Author github is missing. Provide a github link. Deprecated with 1.0.5                                                                    |
+| 318        | There were errors in the blog post.                                                                                                       |
+
