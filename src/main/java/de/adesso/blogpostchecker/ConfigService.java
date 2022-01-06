@@ -19,13 +19,13 @@ public class ConfigService {
     @Value("#{environment.LOCAL_REPO_PATH ?: '${repository.local.path}'}")
     private String LOCAL_REPO_PATH;
 
-    @Value("#{environment.PR_NUMBER ?: '0'}")
+    @Value("#{environment.PR_NUMBER ?: null}")
     private String PR_NUMBER;
 
-    @Value("#{environment.USERNAME ?: 'jekyll2cms'}")
+    @Value("#{environment.USERNAME ?: null}")
     private String USERNAME;
 
-    @Value("#{environment.TOKEN ?: 'TOKEN'}")
+    @Value("#{environment.TOKEN ?: null}")
     private String TOKEN;
 
     public void checkConfiguration() {
