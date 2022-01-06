@@ -62,7 +62,7 @@ public class ConfigService {
     }
 
     private void checkHeadCommit() {
-        if (HEAD_COMMIT == null) {
+        if (HEAD_COMMIT == null || "".equals(HEAD_COMMIT)) {
             logAndExitVariableNotFound("HEAD_COMMIT",
                     "Please provide the current commit in the branch you want to merge.",
                     12);
@@ -72,7 +72,7 @@ public class ConfigService {
     }
 
     private void checkBaseCommit() {
-        if (BASE_COMMIT == null) {
+        if (BASE_COMMIT == null || "".equals(BASE_COMMIT)) {
             logAndExitVariableNotFound("BASE_COMMIT",
                     "Please provide the commit you want to merge into.",
                     13);
@@ -82,7 +82,7 @@ public class ConfigService {
     }
 
     private void checkLocalRepoPath() {
-        if (LOCAL_REPO_PATH == null) {
+        if (LOCAL_REPO_PATH == null || "".equals(LOCAL_REPO_PATH)) {
             logAndExitVariableNotFound("LOCAL_REPO_PATH",
                     "Please provide the path to your local repository.",
                     14);
@@ -92,7 +92,7 @@ public class ConfigService {
     }
 
     private void checkPrNumber() {
-        if (PR_NUMBER == null) {
+        if (PR_NUMBER == null || "".equals(PR_NUMBER)) {
             logAndExitVariableNotFound("PR_NUMBER",
                     "Please provide the PR number.",
                     15);
@@ -102,7 +102,7 @@ public class ConfigService {
     }
 
     private void checkUsername() {
-        if (USERNAME == null) {
+        if (USERNAME == null || "".equals(USERNAME)) {
             logAndExitVariableNotFound("USERNAME",
                     "Please provide the username.",
                     15);
@@ -112,7 +112,7 @@ public class ConfigService {
     }
 
     private void checkToken() {
-        if (TOKEN == null) {
+        if (TOKEN == null || "".equals(TOKEN)) {
             logAndExitVariableNotFound("TOKEN",
                     "Please provide the user token.",
                     15);
