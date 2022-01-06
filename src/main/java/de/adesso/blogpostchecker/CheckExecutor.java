@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.Charset;
@@ -61,15 +62,21 @@ public class CheckExecutor {
             HttpHeaders headers = createHeaders(configService.getUSERNAME(), configService.getTOKEN());
             headers.add("Accept", "application/vnd.github.v3+json");
 
-            ResponseEntity<Object> response = new RestTemplate().exchange(
-                    "https://api.github.com/repos/adessoAG/devblog/issues/" + configService.getPR_NUMBER() + "/comments",
-                    HttpMethod.POST,
-                    new HttpEntity<>(new FeedbackComment(message), headers),
-                    Object.class);
-            if (HttpStatus.CREATED.equals(response.getStatusCode())) {
-                LOGGER.info("Successfully posted errors as PR comment.");
-            } else {
-                LOGGER.error("Error during posting errors as PR comment: " + response.getStatusCode());
+            try {
+                LOGGER.info("try for user {}", configService.getUSERNAME());
+                ResponseEntity<Object> response = new RestTemplate().exchange(
+                        "https://api.github.com/repos/adessoAG/devblog/issues/" + configService.getPR_NUMBER() + "/comments",
+                        HttpMethod.POST,
+                        new HttpEntity<>(new FeedbackComment(message), headers),
+                        Object.class);
+                if (HttpStatus.CREATED.equals(response.getStatusCode())) {
+                    LOGGER.info("Successfully posted errors as PR comment.");
+                } else {
+                    LOGGER.error("Error during posting errors as PR comment: {}", response.getStatusCode());
+                }
+            } catch (HttpClientErrorException e) {
+                System.out.println(e.getResponseBodyAsString());
+                LOGGER.error("Error during posting errors as PR comment: {} ({})", e.getStatusCode(), e.getMessage());
             }
             ExitBlogpostChecker.exit(LOGGER, "There were errors in the blog post", 318);
         }
@@ -210,10 +217,9 @@ public class CheckExecutor {
     private HttpHeaders createHeaders(String username, String password){
         return new HttpHeaders() {{
             String auth = username + ":" + password;
-            byte[] encodedAuth = Base64.encodeBase64(
-                    auth.getBytes(Charset.forName("US-ASCII")) );
-            String authHeader = "Basic " + new String( encodedAuth );
-            set( "Authorization", authHeader );
+            byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
+            String authHeader = "Basic " + new String(encodedAuth);
+            set("Authorization", authHeader);
         }};
     }
 }
