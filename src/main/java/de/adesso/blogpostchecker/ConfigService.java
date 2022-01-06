@@ -32,6 +32,9 @@ public class ConfigService {
         checkHeadCommit();
         checkBaseCommit();
         checkLocalRepoPath();
+        checkPrNumber();
+        checkUsername();
+        checkToken();
     }
 
     public String getBASE_COMMIT() {

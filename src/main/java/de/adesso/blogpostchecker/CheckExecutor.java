@@ -64,7 +64,7 @@ public class CheckExecutor {
             ResponseEntity<Object> response = new RestTemplate().exchange(
                     "https://api.github.com/repos/adessoAG/devblog/issues/" + configService.getPR_NUMBER() + "/comments",
                     HttpMethod.POST,
-                    new HttpEntity<>(message, headers),
+                    new HttpEntity<>(new FeedbackComment(message), headers),
                     Object.class);
             if (HttpStatus.CREATED.equals(response.getStatusCode())) {
                 LOGGER.info("Successfully posted errors as PR comment.");
