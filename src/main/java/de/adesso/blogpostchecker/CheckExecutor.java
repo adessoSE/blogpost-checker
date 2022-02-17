@@ -63,19 +63,25 @@ public class CheckExecutor {
             headers.add("Accept", "application/vnd.github.v3+json");
 
             try {
-                LOGGER.info("try for user {}", configService.getUSERNAME());
+                FeedbackComment comment = new FeedbackComment(message);
                 ResponseEntity<Object> response = new RestTemplate().exchange(
                         "https://api.github.com/repos/adessoAG/devblog/issues/" + configService.getPR_NUMBER() + "/comments",
                         HttpMethod.POST,
-                        new HttpEntity<>(new FeedbackComment(message), headers),
+                        new HttpEntity<>(comment, headers),
                         Object.class);
-                if (HttpStatus.CREATED.equals(response.getStatusCode())) {
-                    LOGGER.info("Successfully posted errors as PR comment.");
-                } else {
-                    LOGGER.error("Error during posting errors as PR comment: {}", response.getStatusCode());
+
+                switch (response.getStatusCode()) {
+                    case CREATED: LOGGER.info("Successfully posted errors as PR comment."); break;
+                    case FORBIDDEN: LOGGER.error("Could not authenticate with given credentials at GitHub API."); break;
+                    case NOT_FOUND: LOGGER.error("Could not find issue with id {} to comment.", configService.getPR_NUMBER()); break;
+                    case GONE: LOGGER.error("Could not find issue with id {} to comment any more.", configService.getPR_NUMBER()); break;
+                    case UNPROCESSABLE_ENTITY: LOGGER.error("Could not process comment entity {}", comment); break;
+                    default:
+                        LOGGER.error("Error during posting errors as PR comment: {}", response.getStatusCode());
+                        LOGGER.error(response.toString());
+                        break;
                 }
             } catch (HttpClientErrorException e) {
-                System.out.println(e.getResponseBodyAsString());
                 LOGGER.error("Error during posting errors as PR comment: {} ({})", e.getStatusCode(), e.getMessage());
             }
             ExitBlogpostChecker.exit(LOGGER, "There were errors in the blog post", 318);
