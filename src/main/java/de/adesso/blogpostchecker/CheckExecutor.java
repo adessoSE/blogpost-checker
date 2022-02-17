@@ -59,7 +59,7 @@ public class CheckExecutor {
 
             LOGGER.info("There were errors in the blog post:\n{}", message);
 
-            HttpHeaders headers = createHeaders(configService.getUSERNAME(), configService.getTOKEN());
+            HttpHeaders headers = createHeaders(configService.getTOKEN());
             headers.add("Accept", "application/vnd.github.v3+json");
 
             try {
@@ -220,11 +220,9 @@ public class CheckExecutor {
         return author.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
     }
 
-    private HttpHeaders createHeaders(String username, String password){
+    private HttpHeaders createHeaders(String token){
         return new HttpHeaders() {{
-            String auth = username + ":" + password;
-            byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
-            String authHeader = "Basic " + new String(encodedAuth);
+            String authHeader = "Bearer " + token;
             set("Authorization", authHeader);
         }};
     }

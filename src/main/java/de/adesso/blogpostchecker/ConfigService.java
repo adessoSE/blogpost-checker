@@ -22,9 +22,6 @@ public class ConfigService {
     @Value("#{environment.PR_NUMBER ?: null}")
     private String PR_NUMBER;
 
-    @Value("#{environment.USERNAME ?: null}")
-    private String USERNAME;
-
     @Value("#{environment.TOKEN ?: null}")
     private String TOKEN;
 
@@ -51,10 +48,6 @@ public class ConfigService {
 
     public String getPR_NUMBER() {
         return PR_NUMBER;
-    }
-
-    public String getUSERNAME() {
-        return USERNAME;
     }
 
     public String getTOKEN() {
@@ -98,16 +91,6 @@ public class ConfigService {
                     15);
         } else {
             LOGGER.info("Environment variable provided: PR_NUMBER");
-        }
-    }
-
-    private void checkUsername() {
-        if (USERNAME == null || "".equals(USERNAME)) {
-            logAndExitVariableNotFound("USERNAME",
-                    "Please provide the username.",
-                    15);
-        } else {
-            LOGGER.info("Environment variable provided: USERNAME");
         }
     }
 
