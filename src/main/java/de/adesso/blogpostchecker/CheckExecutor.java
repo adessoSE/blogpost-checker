@@ -65,7 +65,7 @@ public class CheckExecutor {
             try {
                 FeedbackComment comment = new FeedbackComment(message);
                 ResponseEntity<Object> response = new RestTemplate().exchange(
-                        "https://api.github.com/repos/adessoAG/devblog/issues/" + configService.getPR_NUMBER() + "/comments",
+                        "https://api.github.com/repos/adessoSE/devblog/issues/" + configService.getPR_NUMBER() + "/comments",
                         HttpMethod.POST,
                         new HttpEntity<>(comment, headers),
                         Object.class);
