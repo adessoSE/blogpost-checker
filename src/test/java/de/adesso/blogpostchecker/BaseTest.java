@@ -12,7 +12,7 @@ public class BaseTest {
 
     static {
         System.setProperty("HEAD_COMMIT", "db645ab068d8498cd6b31d12803160a192add326");
-        System.setProperty("BASE_COMMIT", "ead420a5ae7442b03dbfe1d181020f2d56b21e19");
+        System.setProperty("BASE_COMMIT", "04033f5e859553737955b4581843cd588b3d9bc5");
         System.setProperty("LOCAL_REPO_PATH", "src/test/resources/devblog");
     }
 

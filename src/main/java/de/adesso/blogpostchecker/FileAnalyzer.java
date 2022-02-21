@@ -5,8 +5,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -139,16 +137,14 @@ public class FileAnalyzer {
     }
 
     protected PostMetadata extractMetadataFromStringUsingRegex(String metadataString) {
-        PostMetadata metadata = new PostMetadata();
-
-        metadata.setLayout(extractAttributeValueFromMetadata(metadataString, "\\nlayout:\\s*\\[post, post-xml].*\\n", "\\[(.*?)]", 1));
-        metadata.setTitle(extractAttributeValueFromMetadata(metadataString, "\\ntitle:\\s*\".*\".*\\n", "\"(.*?)\"", 1));
-        metadata.setDate(extractAttributeValueFromMetadata(metadataString, "\\ndate:\\s*\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}.*\\n", "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}", 0));
-        metadata.setAuthor(extractAttributeValueFromMetadata(metadataString, "\\nauthor_ids:\\s*\\[.*].*\\n", "\\[(.*)]", 1));
-        metadata.setCategories(extractAttributeValueFromMetadata(metadataString, "\\ncategories:\\s*\\[.*].*\\n", "\\[(.*)]", 1));
-        metadata.setTags(extractAttributeValueFromMetadata(metadataString, "\\ntags:\\s*\\[.*].*\\n", "\\[(.*?)]", 1));
-
-        return metadata;
+        return PostMetadata.builder()
+                .layout(extractAttributeValueFromMetadata(metadataString, "\\nlayout:\\s*\\[post, post-xml].*\\n", "\\[(.*?)]", 1))
+                .title(extractAttributeValueFromMetadata(metadataString, "\\ntitle:\\s*(\"|').*(\"|').*\\n", "(\"|')(.*?)(\"|')", 2))
+                .date(extractAttributeValueFromMetadata(metadataString, "\\ndate:\\s*\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}.*\\n", "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}", 0))
+                .author(extractAttributeValueFromMetadata(metadataString, "\\nauthor_ids:\\s*\\[.*].*\\n", "\\[(.*)]", 1))
+                .categories(extractAttributeValueFromMetadata(metadataString, "\\ncategories:\\s*\\[.*].*\\n", "\\[(.*)]", 1))
+                .tags(extractAttributeValueFromMetadata(metadataString, "\\ntags:\\s*\\[.*].*\\n", "\\[(.*?)]", 1))
+                .build();
     }
 
     private String extractAttributeValueFromMetadata(String metadataString, String pattern1, String pattern2, int groupIndex) {
@@ -158,7 +154,9 @@ public class FileAnalyzer {
             String extractedLine = matcher.group();
             Pattern stringPattern = Pattern.compile(pattern2);
             Matcher stringMatcher = stringPattern.matcher(extractedLine);
-            return stringMatcher.find() ? stringMatcher.group(groupIndex) : null;
+            if (stringMatcher.find() && !"".equals(stringMatcher.group(groupIndex))) {
+                return stringMatcher.group(groupIndex);
+            }
         }
         return null;
     }
@@ -186,18 +184,18 @@ public class FileAnalyzer {
 
         return Arrays.stream(authorIdsString.split(",\\s")).map(authorName -> {
             if (obj.containsKey(authorName)) {
-                Author author = new Author();
                 Map<String, String> authorMap = obj.get(authorName);
 
-                author.setAuthorNickname(authorName);
-                author.setFirstName(authorMap.get("first_name"));
-                author.setLastName(authorMap.get("last_name"));
-                author.setGithubUsername(authorMap.get("github_username"));
-                author.setEmail(authorMap.get("email"));
-                author.setBio(authorMap.get("bio"));
-                author.setAvatarUrl(authorMap.get("avatar_url"));
-                author.setGithub(authorMap.get("github"));
-                return author;
+                return Author.builder()
+                        .authorNickname(authorName)
+                        .firstName(authorMap.get("first_name"))
+                        .lastName(authorMap.get("last_name"))
+                        .githubUsername(authorMap.get("github_username"))
+                        .email(authorMap.get("email"))
+                        .bio(authorMap.get("bio"))
+                        .avatarUrl(authorMap.get("avatar_url"))
+                        .github(authorMap.get("github"))
+                        .build();
             } else {
                 ExitBlogpostChecker.exit(LOGGER, MessageFormat.format("The specified author with name \"{0}\" is not listed in authors.yml.",
                         authorIdsString), 26);

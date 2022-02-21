@@ -9,48 +9,48 @@ public class LayoutTest extends BaseTest {
     public void extractMetadataFromStringUsingRegexShouldPass() {
         String headerString = "\nlayout: [post, post-xml]\n";
         PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
-        Assertions.assertThat(postHeader.getLayout().equals("post, post-xml"));
+        Assertions.assertThat(postHeader.getLayout()).isEqualTo("post, post-xml");
     }
 
     @Test
     public void extractMetadataFromStringUsingRegexShouldPassWithLayoutContainsMultipleWhitespaces() {
         String headerString = "\nlayout:   [post, post-xml]  \n";
         PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
-        Assertions.assertThat(postHeader.getLayout().equals("post, post-xml"));
+        Assertions.assertThat(postHeader.getLayout()).isEqualTo("post, post-xml");
     }
 
     @Test
     public void extractMetadataFromStringUsingRegexShouldPassWithLayoutContainsComment() {
         String headerString = "\nlayout: [post, post-xml] #Don't change this\n";
         PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
-        Assertions.assertThat(postHeader.getLayout().equals("post, post-xml"));
+        Assertions.assertThat(postHeader.getLayout()).isEqualTo("post, post-xml");
     }
 
     @Test
     public void extractMetadataFromStringUsingRegexShouldFailWithLayoutDoesNotMatchLayoutString() {
         String headerString = "\nlayout: [post post-xml]\n";
         PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
-        Assertions.assertThat(postHeader.getLayout() == null);
+        Assertions.assertThat(postHeader.getLayout()).isNull();
     }
 
     @Test
     public void extractMetadataFromStringUsingRegexShouldFailWithLayoutEmpty() {
         String headerString = "\nlayout: []\n";
         PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
-        Assertions.assertThat(postHeader.getLayout() == null);
+        Assertions.assertThat(postHeader.getLayout()).isNull();
     }
 
     @Test
     public void extractMetadataFromStringUsingRegexShouldFailWithLayoutNotInBrackets() {
         String headerString = "\nlayout: post, post-xml\n";
         PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
-        Assertions.assertThat(postHeader.getLayout() == null);
+        Assertions.assertThat(postHeader.getLayout()).isNull();
     }
 
     @Test
     public void extractMetadataFromStringUsingRegexShouldFailWithLayoutEmptyAndNotInBrackets() {
         String headerString = "\nlayout: \n";
         PostMetadata postHeader = fileAnalyzer.extractMetadataFromStringUsingRegex(headerString);
-        Assertions.assertThat(postHeader.getLayout() == null);
+        Assertions.assertThat(postHeader.getLayout()).isNull();
     }
 }
