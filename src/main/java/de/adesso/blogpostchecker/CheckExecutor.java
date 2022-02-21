@@ -59,32 +59,39 @@ public class CheckExecutor {
 
             LOGGER.info("There were errors in the blog post:\n{}", message);
 
-            HttpHeaders headers = createHeaders(configService.getTOKEN());
-            headers.add("Accept", "application/vnd.github.v3+json");
+            postFeedbackComment(message);
 
-            try {
-                FeedbackComment comment = new FeedbackComment(message);
-                ResponseEntity<Object> response = new RestTemplate().exchange(
-                        "https://api.github.com/repos/adessoSE/devblog/issues/" + configService.getPR_NUMBER() + "/comments",
-                        HttpMethod.POST,
-                        new HttpEntity<>(comment, headers),
-                        Object.class);
-
-                switch (response.getStatusCode()) {
-                    case CREATED: LOGGER.info("Successfully posted errors as PR comment."); break;
-                    case FORBIDDEN: LOGGER.error("Could not authenticate with given credentials at GitHub API."); break;
-                    case NOT_FOUND: LOGGER.error("Could not find issue with id {} to comment.", configService.getPR_NUMBER()); break;
-                    case GONE: LOGGER.error("Could not find issue with id {} to comment any more.", configService.getPR_NUMBER()); break;
-                    case UNPROCESSABLE_ENTITY: LOGGER.error("Could not process comment entity {}", comment); break;
-                    default:
-                        LOGGER.error("Error during posting errors as PR comment: {}", response.getStatusCode());
-                        LOGGER.error(response.toString());
-                        break;
-                }
-            } catch (HttpClientErrorException e) {
-                LOGGER.error("Error during posting errors as PR comment: {} ({})", e.getStatusCode(), e.getMessage());
-            }
             ExitBlogpostChecker.exit(LOGGER, "There were errors in the blog post", 318);
+        } else {
+            postFeedbackComment("Blogpost seems formally correct and ready for review!");
+        }
+    }
+
+    private void postFeedbackComment(String message) {
+        HttpHeaders headers = createHeaders(configService.getTOKEN());
+        headers.add("Accept", "application/vnd.github.v3+json");
+        FeedbackComment comment = new FeedbackComment(message);
+
+        try {
+            ResponseEntity<Object> response = new RestTemplate().exchange(
+                    "https://api.github.com/repos/adessoSE/devblog/issues/" + configService.getPR_NUMBER() + "/comments",
+                    HttpMethod.POST,
+                    new HttpEntity<>(comment, headers),
+                    Object.class);
+
+            switch (response.getStatusCode()) {
+                case CREATED: LOGGER.info("Successfully posted errors as PR comment."); break;
+                case FORBIDDEN: LOGGER.error("Could not authenticate with given credentials at GitHub API."); break;
+                case NOT_FOUND: LOGGER.error("Could not find issue with id {} to comment.", configService.getPR_NUMBER()); break;
+                case GONE: LOGGER.error("Could not find issue with id {} to comment any more.", configService.getPR_NUMBER()); break;
+                case UNPROCESSABLE_ENTITY: LOGGER.error("Could not process comment entity {}", comment); break;
+                default:
+                    LOGGER.error("Error during posting errors as PR comment: {}", response.getStatusCode());
+                    LOGGER.error(response.toString());
+                    break;
+            }
+        } catch (HttpClientErrorException e) {
+            LOGGER.error("Error during posting errors as PR comment: {} ({})", e.getStatusCode(), e.getMessage());
         }
     }
 
