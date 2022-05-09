@@ -7,13 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +43,6 @@ public class CheckExecutor {
             checkAuthorFirstNameNotEmpty(author);
             checkAuthorLastNameNotEmpty(author);
             checkAuthorGithubUsernameNotEmpty(author);
-            checkAuthorEmailNotEmpty(author);
-            checkAuthorEmailCorrectFormat(author);
             checkAuthorBioNotEmpty(author);
             checkAuthorAvatarUrlNotEmpty(author);
             checkAuthorGithubNotEmpty(author);
@@ -175,22 +171,6 @@ public class CheckExecutor {
         }
     }
 
-    private void checkAuthorEmailNotEmpty(Author author) {
-        if (checkAttribute(author.getEmail())) {
-            LOGGER.info("Author email checked, value: \"{}\"", author.getEmail());
-        } else {
-            errors.put("author_ids", "Author email is missing for author " + author.getAuthorNickname() + ". Provide a email.");
-        }
-    }
-
-    private void checkAuthorEmailCorrectFormat(Author author) {
-        if (emailMatchesEmailPattern(author)) {
-            LOGGER.info("Author email matches pattern checked");
-        } else {
-            errors.put("author_ids", "Email format error for author " + author.getAuthorNickname() + ". Adapt to accepted pattern ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$. Provide a last name.");
-        }
-    }
-
     private void checkAuthorBioNotEmpty(Author author) {
         if (checkAttribute(author.getBio())) {
             LOGGER.info("Author bio checked, value: \"{}\"", author.getBio());
@@ -221,10 +201,6 @@ public class CheckExecutor {
 
     private boolean dateMatchesPattern(PostMetadata metadata) {
         return checkAttribute(metadata.getDate()) && metadata.getDate().matches("\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}");
-    }
-
-    private boolean emailMatchesEmailPattern(Author author) {
-        return author.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
     }
 
     private HttpHeaders createHeaders(String token){
