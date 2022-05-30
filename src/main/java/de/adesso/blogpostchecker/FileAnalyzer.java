@@ -59,6 +59,11 @@ public class FileAnalyzer {
     private void analyzeBranch() {
         try {
             localGitInstance = LocalRepoCreator.getLocalGit();
+
+            LOGGER.info("Analyzing diff between head commit '{}' and base commit '{}'",
+                    ObjectId.fromString(configService.getHEAD_COMMIT()),
+                    ObjectId.fromString(configService.getBASE_COMMIT()));
+
             RevCommit currentHead = localGitInstance.getRepository()
                     .parseCommit(ObjectId.fromString(configService.getHEAD_COMMIT()));
             RevCommit baseCommit = localGitInstance.getRepository()
@@ -71,6 +76,7 @@ public class FileAnalyzer {
             extractMetadataFromFiles(currentHead, markdownPost);
             localGitInstance.close();
         } catch (IOException e) {
+            LOGGER.error("Could not analyze branch", e);
             ExitBlogpostChecker.exit(LOGGER, "Error on getting file content: " + e.getMessage(), 25);
         }
     }
