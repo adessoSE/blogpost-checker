@@ -1,6 +1,8 @@
 package de.adesso.blogpostchecker;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -20,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,10 +67,18 @@ public class FileAnalyzer {
                     ObjectId.fromString(configService.getHEAD_COMMIT()),
                     ObjectId.fromString(configService.getBASE_COMMIT()));
 
-            RevCommit currentHead = localGitInstance.getRepository()
-                    .parseCommit(ObjectId.fromString(configService.getHEAD_COMMIT()));
+            int limit = 0;
+            for (RevCommit commit : localGitInstance.log().call()) {
+                LOGGER.info("{} ({}): {}", commit.getName(), new Date(commit.getCommitTime() * 1000L), commit.getShortMessage());
+                if (limit++ > 10) {
+                    break;
+                }
+            }
+
             RevCommit baseCommit = localGitInstance.getRepository()
                     .parseCommit(ObjectId.fromString(configService.getBASE_COMMIT()));
+            RevCommit currentHead = localGitInstance.getRepository()
+                    .parseCommit(ObjectId.fromString(configService.getHEAD_COMMIT()));
 
             LOGGER.info("Analysing commit {}: {} by {}", currentHead.getName(), currentHead.getShortMessage(),
                     currentHead.getAuthorIdent().getEmailAddress());
@@ -78,6 +89,9 @@ public class FileAnalyzer {
         } catch (IOException e) {
             LOGGER.error("Could not analyze branch", e);
             ExitBlogpostChecker.exit(LOGGER, "Error on getting file content: " + e.getMessage(), 25);
+        } catch (GitAPIException e) {
+            LOGGER.error("GitApiException: ", e);
+            ExitBlogpostChecker.exit(LOGGER, "Error on getting file content: " + e.getMessage(), -1);
         }
     }
 
