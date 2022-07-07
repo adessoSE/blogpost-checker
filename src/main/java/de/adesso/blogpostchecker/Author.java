@@ -14,7 +14,6 @@ public class Author {
     private String authorNickname;
     private String firstName;
     private String lastName;
-    private String githubUsername;
     private String bio;
     private String avatarUrl;
     private String github;

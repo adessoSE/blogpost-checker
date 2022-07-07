@@ -190,7 +190,6 @@ public class FileAnalyzer {
                         .authorNickname(authorName)
                         .firstName(authorMap.get("first_name"))
                         .lastName(authorMap.get("last_name"))
-                        .githubUsername(authorMap.get("github_username"))
                         .bio(authorMap.get("bio"))
                         .avatarUrl(authorMap.get("avatar_url"))
                         .github(authorMap.get("github"))

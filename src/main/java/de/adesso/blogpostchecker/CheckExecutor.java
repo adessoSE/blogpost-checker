@@ -42,7 +42,6 @@ public class CheckExecutor {
         authors.forEach(author -> {
             checkAuthorFirstNameNotEmpty(author);
             checkAuthorLastNameNotEmpty(author);
-            checkAuthorGithubUsernameNotEmpty(author);
             checkAuthorBioNotEmpty(author);
             checkAuthorAvatarUrlNotEmpty(author);
             checkAuthorGithubNotEmpty(author);
@@ -160,14 +159,6 @@ public class CheckExecutor {
             LOGGER.info("Author last name checked, value: \"{}\"", author.getLastName());
         } else {
             errors.put("author_ids", "Author last name is missing for author " + author.getAuthorNickname() + ". Provide a last name.");
-        }
-    }
-
-    private void checkAuthorGithubUsernameNotEmpty(Author author) {
-        if (checkAttribute(author.getGithubUsername())) {
-            LOGGER.info("Author github username checked, value: \"{}\"", author.getGithubUsername());
-        } else {
-            errors.put("author_ids", "Author github username is missing for author " + author.getAuthorNickname() + ". Provide a github username.");
         }
     }
 
