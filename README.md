@@ -47,7 +47,6 @@ A post's metadata has to have a nickname that is listed in that file.
 authorNickname:
   first_name: first name
   last_name: last name
-  github_username: github username
   bio: "author bio"
   avatar_url: /assets/images/avatars/<author imange name>.png
   github: github link to author
@@ -56,7 +55,6 @@ authorNickname:
 These checks are currently executed for the `authors.yml`:
 * `first_name` cannot be empty
 * `last_name` cannot be empty
-* `github_username` cannot be empty
 * `bio` cannot be empty
 * `avatar_url` cannot be empty
 * `github` cannot be empty
