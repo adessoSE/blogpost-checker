@@ -50,26 +50,35 @@ public class AnalyzerTest extends BaseTest {
     @Test
     public void getPostMetadataFromGitShouldPass() {
         PostMetadata metadata = new PostMetadata();
-        metadata.setAuthor("dariobraun");
-        metadata.setCategories("Test");
-        metadata.setDate("2020-04-01 13:00");
+        metadata.setAuthor("fabianvolkert, jo2");
+        metadata.setCategories("Softwareentwicklung");
+        metadata.setDate("2021-08-23 13:00");
         metadata.setLayout("post, post-xml");
-        metadata.setTags("Tag1, Tag2, Tag3");
-        metadata.setTitle("sdfs dasd 23 dsadas & fdsf");
-        Assertions.assertThat(fileAnalyzer.getMetadata().equals(metadata));
+        metadata.setTags("Kotlin, Funktionale Programmierung");
+        metadata.setTitle("Functional Kotlin - Eine EinfÃ¼hrung");
+        Assertions.assertThat(fileAnalyzer.getMetadata()).isEqualTo(metadata);
     }
 
     @Test
     public void getAuthorFromGitShouldPass() {
-        Author author = new Author();
-        author.setAuthorNickname("dariobraun");
-        author.setAvatarUrl("/assets/images/avatars/dariobraun.jpg");
-        author.setBio("Dario Braun ist Werkstudent bei adesso in Dortmund und im Open-Source-Bereich tätig.");
-        author.setEmail("dario.braun@adesso.de");
-        author.setFirstName("Dario");
-        author.setGithub("https://github.com/dariobraun");
-        author.setGithubUsername("dariobraun");
-        author.setLastName("Braun");
-        Assertions.assertThat(fileAnalyzer.getAuthors().equals(List.of(author)));
+        Author author1 = Author.builder()
+                .authorNickname("fabianvolkert")
+                .firstName("Fabian")
+                .lastName("Volkert")
+                .avatarUrl("/assets/images/avatars/fabianvolkert.png")
+                .bio("Fabian Volkert ist seit 2020 Software Developer bei adesso. Die ersten Berührungspunkte mit Kotlin hatte er 2019 in seiner Masterarbeit und programmierte in dieser Sprache anschließend auch in einem Projekt im E-Commerce.")
+                .github("https://github.com/VolkertF")
+                .build();
+
+        Author author2 = Author.builder()
+                .authorNickname("jo2")
+                .firstName("Johannes")
+                .lastName("Teklote")
+                .avatarUrl("/assets/images/avatars/johannesteklote.jpg")
+                .bio("Johannes Teklote ist Werkstudent bei adesso in Dortmund und entwickelt Software im Open Source Bereich.")
+                .github("https://github.com/jo2")
+                .build();
+
+        Assertions.assertThat(fileAnalyzer.getAuthors()).isEqualTo(List.of(author1, author2));
     }
 }
