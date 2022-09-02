@@ -67,7 +67,6 @@ public class AnalyzerTest extends BaseTest {
                 .lastName("Volkert")
                 .avatarUrl("/assets/images/avatars/fabianvolkert.png")
                 .bio("Fabian Volkert ist seit 2020 Software Developer bei adesso. Die ersten Berührungspunkte mit Kotlin hatte er 2019 in seiner Masterarbeit und programmierte in dieser Sprache anschließend auch in einem Projekt im E-Commerce.")
-                .github("https://github.com/VolkertF")
                 .build();
 
         Author author2 = Author.builder()
@@ -76,7 +75,6 @@ public class AnalyzerTest extends BaseTest {
                 .lastName("Teklote")
                 .avatarUrl("/assets/images/avatars/johannesteklote.jpg")
                 .bio("Johannes Teklote ist Werkstudent bei adesso in Dortmund und entwickelt Software im Open Source Bereich.")
-                .github("https://github.com/jo2")
                 .build();
 
         Assertions.assertThat(fileAnalyzer.getAuthors()).isEqualTo(List.of(author1, author2));

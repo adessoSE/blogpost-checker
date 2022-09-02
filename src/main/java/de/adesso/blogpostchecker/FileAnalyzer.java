@@ -175,7 +175,7 @@ public class FileAnalyzer {
         } catch (IOException e) {
             ExitBlogpostChecker.exit(LOGGER, "Error on getting authors.yml content from git.", 26);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private List<Author> getAuthorFromYml(String authorYml, String authorIdsString) {
@@ -192,7 +192,6 @@ public class FileAnalyzer {
                         .lastName(authorMap.get("last_name"))
                         .bio(authorMap.get("bio"))
                         .avatarUrl(authorMap.get("avatar_url"))
-                        .github(authorMap.get("github"))
                         .build();
             } else {
                 ExitBlogpostChecker.exit(LOGGER, MessageFormat.format("The specified author with name \"{0}\" is not listed in authors.yml.",

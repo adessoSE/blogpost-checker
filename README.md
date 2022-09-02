@@ -49,7 +49,6 @@ authorNickname:
   last_name: last name
   bio: "author bio"
   avatar_url: /assets/images/avatars/<author imange name>.png
-  github: github link to author
 ```
 
 These checks are currently executed for the `authors.yml`:
@@ -57,7 +56,6 @@ These checks are currently executed for the `authors.yml`:
 * `last_name` cannot be empty
 * `bio` cannot be empty
 * `avatar_url` cannot be empty
-* `github` cannot be empty
 
 # Usage
 Blogpost-Checker comes in a docker container and can either be used standalone or in a GitHub Action.

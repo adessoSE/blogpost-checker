@@ -44,7 +44,6 @@ public class CheckExecutor {
             checkAuthorLastNameNotEmpty(author);
             checkAuthorBioNotEmpty(author);
             checkAuthorAvatarUrlNotEmpty(author);
-            checkAuthorGithubNotEmpty(author);
         });
 
         if (!errors.isEmpty()) {
@@ -175,14 +174,6 @@ public class CheckExecutor {
             LOGGER.info("Author avatar url checked, value: \"{}\"", author.getAvatarUrl());
         } else {
             errors.put("author_ids", "Author avatar url is missing for author " + author.getAuthorNickname() + ". Provide an avatar url.");
-        }
-    }
-
-    private void checkAuthorGithubNotEmpty(Author author) {
-        if (checkAttribute(author.getGithub())) {
-            LOGGER.info("Author github checked, value: \"{}\"", author.getGithub());
-        } else {
-            errors.put("author_ids", "Author github is missing for author " + author.getAuthorNickname() + ". Provide a github link.");
         }
     }
 

@@ -16,5 +16,4 @@ public class Author {
     private String lastName;
     private String bio;
     private String avatarUrl;
-    private String github;
 }
